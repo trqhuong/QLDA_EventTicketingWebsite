@@ -1,0 +1,56 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_account.css') }}">
+
+<form class="register-form" method="POST" enctype="multipart/form-data">
+     <h2>Đăng ký tài khoản</h2>
+        <!-- field ẩn role -->
+    <input type="hidden" name="role">
+     <!-- Username -->
+    <div class="mb-1 mt-1">
+        <input type="text" value="{{ username|default('') }}" class="form-control"
+               id="username" placeholder="Enter username" name="username" required>
+    </div>
+
+    <!-- Email -->
+    <div class="mt-1 mb-1">
+        <input type="email" value="{{ email|default('') }}" class="form-control"
+               id="email" placeholder="Enter email" name="email" required>
+    </div>
+
+    <!-- Phone -->
+    <div class="mt-1 mb-1">
+        <input type="text" value="{{ phone|default('') }}" class="form-control"
+               id="phone" placeholder="Enter phone number" name="phone" required>
+    </div>
+
+    <!-- Password -->
+    <div class="mt-1 mb-1">
+        <input type="password" class="form-control" id="pwd"
+               placeholder="Enter password" name="password" required>
+    </div>
+
+    <!-- Confirm password -->
+    <div class="mt-1 mb-1">
+        <input type="password" class="form-control" id="confirm"
+               placeholder="Confirm password" name="confirm" required>
+    </div>
+
+    <!-- Chỉ hiện khi role = ORGANIZER -->
+    {% if role == 'ORGANIZER' %}
+    <div id="organizerFields">
+        <div class="mt-1 mb-1">
+            <input type="text" value="{{ company_name|default('') }}"
+                   class="form-control" placeholder="Tên công ty" name="company_name" required>
+        </div>
+        <div class="mt-1 mb-1">
+            <input type="text" value="{{ tax_code|default('') }}"
+                   class="form-control" placeholder="Mã số thuế" name="tax_code" required>
+        </div>
+    </div>
+    {% endif %}
+
+    <button type="submit">Đăng ký</button>
+
+    <div class="note">
+        Đã có tài khoản? <a href="/login">Đăng nhập</a>
+    </div>
+</form>
