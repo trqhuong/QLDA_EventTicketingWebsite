@@ -18,16 +18,19 @@
         <!-- Các nút bên phải -->
         <div class="d-flex align-items-center gap-4 me-4">
             <button class="btn btn-outline-light bg-success border border-light rounded-pill px-3">Tạo sự kiện</button>
-            <a href="#" class="text-white text-decoration-none d-flex align-items-center fs-6">
+            <a href="/my_ticket" class="text-white text-decoration-none d-flex align-items-center fs-6">
                 <i class="bi bi-ticket-perforated-fill me-2"></i> Vé của tôi
             </a>
+            {% if current_user.is_authenticated %}
             <span class="text-white fw-bold fs-6 me-2">
-            Xin chào,
+            Xin chào,{{ current_user.username }}
         </span>
             <a href="/logout" class="btn btn-outline-light rounded-pill px-3">Đăng xuất</a>
-            <a href="/login" class="text-white fw-bold text-decoration-none fs-6">s
+            {% else %}
+            <a href="/login" class="text-white fw-bold text-decoration-none fs-6">
                 Đăng nhập/Đăng ký
             </a>
+            {% endif %}
         </div>
     </div>
 </header>
@@ -37,16 +40,16 @@
     <div class="container-fluid">
         <ul class="navbar-nav gap-3">
             <li class="nav-item">
-                <a class="nav-link fs-6 text-white" href="#">Nhạc
+                <a class="nav-link fs-6 text-white" href="{{ url_for('events_by_category', category='Music') }}">Nhạc
                     sống</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link fs-6 text-white" href="#">Sân
+                <a class="nav-link fs-6 text-white" href="{{ url_for('events_by_category', category='StageAndArts') }}">Sân
                     khấu & Nghệ thuật</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link fs-6 text-white"
-                   href="#">Khác</a>
+                   href="{{ url_for('events_by_category', category='Others') }}">Khác</a
             </li>
         </ul>
 
