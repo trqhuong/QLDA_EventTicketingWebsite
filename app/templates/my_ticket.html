@@ -1,0 +1,88 @@
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_ticket.css') }}">
+<!-- Vé chưa sử dụng -->
+<div class="ticket-card">
+    <div class="ticket-image">
+        <img src="https://img.icons8.com/ios-filled/100/ffffff/picture.png" alt="show">
+    </div>
+    <div class="ticket-info">
+        <h3>Tên show</h3>
+        <div class="info-row mb-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_663_3)">
+                    <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM13 12V7H11V14H17V12H13Z"
+                          fill="white"/>
+                </g>
+                <defs>
+                    <clipPath id="clip0_663_3">
+                        <rect width="24" height="24" fill="black"/>
+                    </clipPath>
+                </defs>
+            </svg>
+            Thời gian
+        </div>
+        <div class="info-row mb-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 11.728H22.5V20.728C22.5 21.2803 22.0523 21.728 21.5 21.728H3.5C2.94772 21.728 2.5 21.2803 2.5 20.728V11.728ZM17.5 3.72803H21.5C22.0523 3.72803 22.5 4.17575 22.5 4.72803V9.72803H2.5V4.72803C2.5 4.17575 2.94772 3.72803 3.5 3.72803H7.5V1.72803H9.5V3.72803H15.5V1.72803H17.5V3.72803Z"
+                      fill="white"/>
+            </svg>
+            Ngày
+        </div>
+        <div class="info-row mb-2">
+            <svg width="28" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.864 15.364L9.5 21.7279L3.13604 15.364C-0.37868 11.8492 -0.37868 6.15076 3.13604 2.63604C6.65076 -0.87868 12.3492 -0.87868 15.864 2.63604C19.3787 6.15076 19.3787 11.8492 15.864 15.364ZM9.5 13C11.7091 13 13.5 11.2091 13.5 9C13.5 6.79086 11.7091 5 9.5 5C7.29086 5 5.5 6.79086 5.5 9C5.5 11.2091 7.29086 13 9.5 13ZM9.5 11C8.3954 11 7.5 10.1046 7.5 9C7.5 7.89543 8.3954 7 9.5 7C10.6046 7 11.5 7.89543 11.5 9C11.5 10.1046 10.6046 11 9.5 11Z"
+                      fill="white"/>
+            </svg>
+            Địa điểm
+        </div>
+        <p><span class="highlight">Tổng tiền:</span> ... &nbsp;&nbsp;
+            <span class="highlight">Số vé:</span> ...</p>
+        <p>Trạng thái: <span class="status unused">Chưa sử dụng</span></p>
+        <div class="ticket-actions">
+            <button class="btn">Hủy vé</button>
+            <button class="btn">Đổi vé</button>
+        </div>
+    </div>
+</div>
+
+<!-- Vé đã sử dụng -->
+<div class="ticket-card">
+    <div class="ticket-image">
+        <img src="https://img.icons8.com/ios-filled/100/ffffff/picture.png" alt="show">
+    </div>
+    <div class="ticket-info">
+        <h3>Tên show</h3>
+        <div class="info-row mb-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_663_3)">
+                    <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM13 12V7H11V14H17V12H13Z"
+                          fill="white"/>
+                </g>
+                <defs>
+                    <clipPath id="clip0_663_3">
+                        <rect width="24" height="24" fill="black"/>
+                    </clipPath>
+                </defs>
+            </svg>
+            Thời gian
+        </div>
+        <div class="info-row mb-2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 11.728H22.5V20.728C22.5 21.2803 22.0523 21.728 21.5 21.728H3.5C2.94772 21.728 2.5 21.2803 2.5 20.728V11.728ZM17.5 3.72803H21.5C22.0523 3.72803 22.5 4.17575 22.5 4.72803V9.72803H2.5V4.72803C2.5 4.17575 2.94772 3.72803 3.5 3.72803H7.5V1.72803H9.5V3.72803H15.5V1.72803H17.5V3.72803Z"
+                      fill="white"/>
+            </svg>
+            Ngày
+        </div>
+        <div class="info-row mb-2">
+            <svg width="28" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.864 15.364L9.5 21.7279L3.13604 15.364C-0.37868 11.8492 -0.37868 6.15076 3.13604 2.63604C6.65076 -0.87868 12.3492 -0.87868 15.864 2.63604C19.3787 6.15076 19.3787 11.8492 15.864 15.364ZM9.5 13C11.7091 13 13.5 11.2091 13.5 9C13.5 6.79086 11.7091 5 9.5 5C7.29086 5 5.5 6.79086 5.5 9C5.5 11.2091 7.29086 13 9.5 13ZM9.5 11C8.3954 11 7.5 10.1046 7.5 9C7.5 7.89543 8.3954 7 9.5 7C10.6046 7 11.5 7.89543 11.5 9C11.5 10.1046 10.6046 11 9.5 11Z"
+                      fill="white"/>
+            </svg>
+            Địa điểm
+        </div>
+        <p><span class="highlight">Tổng tiền:</span> ... &nbsp;&nbsp;
+            <span class="highlight">Số vé:</span> ...</p>
+
+        <p>Trạng thái: <span class="status used">Đã sử dụng</span></p>
+    </div>
+</div>
