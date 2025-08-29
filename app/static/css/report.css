@@ -1,0 +1,38 @@
+  body {
+      background-color: black; /* nền đen */
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+   .stat-card {
+  background: #1e1e1e;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: #fff;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+}
+ .stat-card h5 {
+  color: #fff !important;
+  font-weight: bold;
+}
+    canvas {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+
+.filter-select {
+    background-color: #1e1e1e;
+    color: #fff; /* chữ trắng */
+    border: 1px solid #444;
+}
+
+.filter-select option {
+    background-color: #1e1e1e;
+    color: #fff; /* tất cả option đều trắng */
+}

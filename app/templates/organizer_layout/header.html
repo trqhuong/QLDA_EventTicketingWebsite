@@ -1,0 +1,55 @@
+<header class="bg-success text-white py-2 fs-5">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <!-- Logo -->
+        <div class="fw-bold fs-3 ms-4">QuickTicket</div>
+
+        <!-- Các nút bên phải -->
+        <div class="d-flex align-items-center gap-3 me-4">
+            <a href="/organizer"
+               class="btn btn-outline-light bg-success border border-light rounded-pill px-3">
+                Tạo sự kiện
+            </a>
+            <a href="/my_event"
+               class="btn btn-outline-light bg-success border border-light rounded-pill px-3">
+                Sự kiện của tôi
+            </a>
+            <a href="/report_event"
+               class="btn btn-outline-light bg-success border border-light rounded-pill px-3">
+                Quản lý báo cáo
+            </a>
+            <div class="dropdown">
+                <div class="dropdown-toggle" style="font-size: 18px; cursor: pointer;">Tài Khoản</div>
+                <div class="dropdown-menu">
+                    <a href="#" style="display: block; padding: 10px; text-decoration: none; color: black;">Hồ sơ</a>
+                    <a href="#" style="display: block; padding: 10px; text-decoration: none; color: black;">Cài đặt</a>
+                    <a href="#" style="display: block; padding: 10px; text-decoration: none; color: black;">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</header>
+
+<script>
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+
+    dropdownToggle.addEventListener('click', () => {
+        dropdownMenu.style.display =
+            dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Đóng dropdown khi click ra ngoài
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.dropdown')) {
+            dropdownMenu.style.display = 'none';
+        }
+    });
+</script>
+
+
+
+
+
