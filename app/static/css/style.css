@@ -1,0 +1,58 @@
+body {
+    background-color: black;
+    color: white;
+}
+/* chỉnh thanh slider dưới */
+.carousel-item .col-md-4 {
+  display: flex;
+  justify-content: center;
+}
+.carousel-item .img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+
+
+
+.trending-item img {
+    display: block;
+    height: 200px; /* tùy chỉnh */
+    border-radius: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+.trending-item {
+    position: relative;
+}
+
+.trend-number {
+    position: absolute;
+    bottom: 5px;
+    left: 8px;
+    font-size: 75px;
+    font-weight: bold;
+    line-height: 1;
+    color: #2DC275;
+    z-index: 10;
+    pointer-events: none;
+}
+
+
+
+.filter-select:hover {
+    border-color: #00ff88; /* viền sáng khi hover */
+}
+
+/* Khi focus */
+.filter-select:focus {
+    background-color: #2b2b2b !important;
+    border-color: #00ff88 !important;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+
+
+
+
