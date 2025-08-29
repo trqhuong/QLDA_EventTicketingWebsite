@@ -73,7 +73,6 @@ def detail_event():
     return render_template('detail_event.html', event=event, event_id=event_id)
 
 
-
 if __name__ == '__main__':
 
     app.run(debug=True)
