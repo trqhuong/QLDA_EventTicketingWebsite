@@ -17,17 +17,22 @@
 
         <!-- Các nút bên phải -->
         <div class="d-flex align-items-center gap-4 me-4">
+            {% if current_user.is_authenticated %}
+                {% if current_user.role == "ORGANIZER" %}
             <button class="btn btn-outline-light bg-success border border-light rounded-pill px-3">Tạo sự kiện</button>
-            <a href="#" class="text-white text-decoration-none d-flex align-items-center fs-6">
+                {% endif %}
+            <a href="/my_ticket" class="text-white text-decoration-none d-flex align-items-center fs-6">
                 <i class="bi bi-ticket-perforated-fill me-2"></i> Vé của tôi
             </a>
             <span class="text-white fw-bold fs-6 me-2">
-            Xin chào,
+            Xin chào,{{ current_user.username }}
         </span>
             <a href="/logout" class="btn btn-outline-light rounded-pill px-3">Đăng xuất</a>
-            <a href="/login" class="text-white fw-bold text-decoration-none fs-6">s
+            {% else %}
+            <a href="/login" class="text-white fw-bold text-decoration-none fs-6">
                 Đăng nhập/Đăng ký
             </a>
+            {% endif %}
         </div>
     </div>
 </header>
@@ -35,38 +40,36 @@
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style=" margin-bottom: 20px;">
     <div class="container-fluid">
-        <ul class="navbar-nav gap-3">
-            <li class="nav-item">
-                <a class="nav-link fs-6 text-white" href="#">Nhạc
-                    sống</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link fs-6 text-white" href="#">Sân
-                    khấu & Nghệ thuật</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link fs-6 text-white"
-                   href="#">Khác</a>
-            </li>
-        </ul>
-
         <!-- Bộ lọc chi tiết -->
-        <form class="d-flex align-items-center ms-3">
+        <form class="d-flex align-items-center ms-3" method="GET" action="{{ url_for('index') }}" id="filterForm">
+        <select class="form-select me-2 filter-select bg-dark border-dark text-white" id="artistSelect" name="event_type_id">
+                <option value="">Chọn loại sự kiện</option>
+                {% if event_types %}
+                    {% for item in event_types %}
+                    <option value="{{ item.id }}" {% if selected_item and selected_item.id == item.id %}selected{% endif %}>{{ item.name }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
             <!-- Diễn viên -->
-            <select class="form-select me-2 filter-select bg-dark border-dark text-white">
+            <select class="form-select me-2 filter-select bg-dark border-dark text-white" id="artistSelect" name="artist_id">
                 <option value="">Chọn diễn viên</option>
-                <option value="mytam">HieuThu2</option>
-                <option value="denvau">Hoài Linh</option>
-                <option value="sonTung">Sơn Tùng M-TP</option>
+                {% if artists %}
+                    {% for artist in artists %}
+                    <option value="{{ artist.id }}" {% if selected_artist and selected_artist.id == artist.id %}selected{% endif %}>{{ artist.name }}</option>
+                    {% endfor %}
+                {% endif %}
             </select>
 
             <!-- Địa điểm -->
-            <select class="form-select filter-select bg-dark border-dark text-white">
+            <select class="form-select filter-select bg-dark border-dark text-white" id="locationSelect" name="city_id">
                 <option value="">Chọn địa điểm</option>
-                <option value="hanoi">Hà Nội</option>
-                <option value="hcm">TP.HCM</option>
-                <option value="danang">Đà Nẵng</option>
+                {% if cities %}
+                    {% for city in cities %}
+                    <option value="{{ city.id }}" {% if selected_location and selected_location == city.name %}selected{% endif %}>{{ city.name }}</option>
+                    {% endfor %}
+                {% endif %}
             </select>
+            <button class="btn btn-outline-light ms-3" type="submit">Lọc</button>
         </form>
     </div>
 </nav>
