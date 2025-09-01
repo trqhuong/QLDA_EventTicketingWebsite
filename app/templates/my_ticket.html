@@ -1,4 +1,6 @@
+{% extends 'layout/base.html' %}
 
+{% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/my_ticket.css') }}">
 <!-- Vé chưa sử dụng -->
 <div class="ticket-card">
@@ -86,3 +88,4 @@
         <p>Trạng thái: <span class="status used">Đã sử dụng</span></p>
     </div>
 </div>
+{% endblock %}
