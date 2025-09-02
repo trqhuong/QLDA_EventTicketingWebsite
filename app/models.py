@@ -35,13 +35,6 @@ class MyTicket_Status(MyTicketEnum):
     Cancelled = "Đã hủy"
     Expired = "Hết hạn"
 
-
-class EventType(EventEnum):
-    Music="Music"
-    StageAndArts="StageAndArts"
-    Others="Others"
-
-
 class Base(db.Model):
     __abstract__ = True
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -73,6 +66,9 @@ class District(Base):
     event = relationship('Event', backref='district', lazy=True)
     city_id = Column(Integer, ForeignKey("city.id"))
 
+class EventType(Base):
+    name = Column(String(50), nullable=False)
+
 
 class Event(Base):
     name = Column(String(50), nullable=False)
@@ -80,7 +76,7 @@ class Event(Base):
     date = Column(Date, nullable=False)
     description= Column(String(100), nullable=True)
     address = Column(String(255), nullable=True)
-    type=Column(Enum(EventType), nullable=False, default=EventType.Others)
+    event_type_id= Column(Integer, ForeignKey("event_type.id"))
     organizer_id= Column(Integer, ForeignKey("organizer.id"))
     ticket=relationship('Ticket', backref='event', lazy=True)
     city_id= Column(Integer, ForeignKey("city.id"))
@@ -129,10 +125,11 @@ if __name__ == '__main__':
 
         # List tables in the correct order to avoid foreign key errors
         tables_to_drop = [
-            'bill_detail',
+            'bill__detail',
             'ticket',
             'event__artist',
             'event',
+            'event__type',
             'bill',
             'organizer',
             'artist',
@@ -245,13 +242,22 @@ if __name__ == '__main__':
         db.session.add_all([district1, district2, district3, district4, district5])
         db.session.commit()
 
+        #------EventType------
+        event_type1=EventType(name="Âm nhạc")
+        event_type2=EventType(name="Sân khấu & Nghệ thuật")
+        event_type3=EventType(name="Thể thao")
+        event_type4=EventType(name="Hội chợ & Triển lãm")
+
+        db.session.add_all([event_type1, event_type2, event_type3, event_type4])
+        db.session.commit()
+
         #------Event-------
         event1 = Event(
             name="Concert Anh trai vượt ngàn chông gai",
             time=time(17, 0),
             date=date(2025, 9, 15),
             description="Đỉnh nóc kịch trần bay phấp phới",
-            type=EventType.Music,
+            event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
             district_id=district1.id
@@ -262,7 +268,7 @@ if __name__ == '__main__':
             time=time(18, 0),
             date=date(2025, 10, 10),
             description="Đỉnh nóc kịch trần bay phấp phới",
-            type=EventType.Music,
+            event_type_id=event_type2.id,
             organizer_id=2,
             city_id=city1.id,
             district_id=district1.id
@@ -273,7 +279,7 @@ if __name__ == '__main__':
             time=time(18, 10),
             date=date(2025, 9, 23),
             description="Thể hiện vẽ đẹp cổ xưa của Hội An",
-            type=EventType.StageAndArts,
+            event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
             district_id=district1.id
@@ -284,7 +290,7 @@ if __name__ == '__main__':
             time=time(14, 0),
             date=date(2025, 9, 20),
             description="Kịnh tính, sống động",
-            type=EventType.Others,
+            event_type_id=event_type3.id,
             organizer_id=1,
             city_id=city2.id,
             district_id=district4.id
@@ -295,7 +301,7 @@ if __name__ == '__main__':
             time=time(15, 0),
             date=date(2025, 10, 10),
             description="Hài hước, vui nhộn",
-            type=EventType.StageAndArts,
+            event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
             district_id=district3.id
@@ -306,7 +312,7 @@ if __name__ == '__main__':
             time=time(19, 0),
             date=date(2025, 10, 1),
             description="Ngày xửa ngày xưa",
-            type=EventType.StageAndArts,
+            event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
             district_id=district2.id
@@ -317,7 +323,7 @@ if __name__ == '__main__':
             time=time(14, 30),
             date=date(2025, 9, 10),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
-            type=EventType.Others,
+            event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
             district_id=district1.id
@@ -328,7 +334,7 @@ if __name__ == '__main__':
             time=time(20, 0),
             date=date(2025, 11, 1),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
-            type=EventType.Others,
+            event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
             district_id=district1.id
@@ -339,7 +345,7 @@ if __name__ == '__main__':
             time=time(9, 0),
             date=date(2025, 9, 10),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
-            type=EventType.Others,
+            event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
             district_id=district1.id
