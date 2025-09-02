@@ -77,6 +77,7 @@ class Event(Base):
     description= Column(String(100), nullable=True)
     address = Column(String(255), nullable=True)
     event_type_id= Column(Integer, ForeignKey("event_type.id"))
+    event_type = relationship("EventType", backref="events", lazy=True)
     organizer_id= Column(Integer, ForeignKey("organizer.id"))
     ticket=relationship('Ticket', backref='event', lazy=True)
     city_id= Column(Integer, ForeignKey("city.id"))

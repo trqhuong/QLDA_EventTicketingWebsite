@@ -190,9 +190,7 @@ def register():
 
     return render_template('create_account.html', err_message=err_message)
 
-@app.route('/event/<int:event_id>')
-def detail_event():
-    return render_template('index.html')
+
 
 @app.route("/login/google")
 def login_google():
@@ -226,11 +224,6 @@ def callback():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
-@app.route("/events/<category>")
-def events_by_category(category):
-    events = events_dao.get_events_by_category(category)
-    return render_template("events.html", events=events, category=category)
 
 
 @app.route('/detail_event')
