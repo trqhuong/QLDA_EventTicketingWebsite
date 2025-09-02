@@ -190,9 +190,7 @@ def register():
 
     return render_template('create_account.html', err_message=err_message)
 
-@app.route('/event/<int:event_id>')
-def detail_event():
-    return render_template('index.html')
+
 
 @app.route("/login/google")
 def login_google():
@@ -227,24 +225,34 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route("/events/<category>")
-def events_by_category(category):
-    events = events_dao.get_events_by_category(category)
-    return render_template("events.html", events=events, category=category)
-
 
 @app.route('/detail_event')
 def detail_event():
     cart = session.get(app.config['CART_KEY'], {})
+    if cart:
+        session.pop(app.config['CART_KEY'], None)
+        cart = {}
+        # for cart_id,ticket_details in cart.items():
+        #     print(f"ticket_id: {cart_id}, quantity: {ticket_details['quantity']} \n")
+    else :
+        print("cart is empty")
     cart_info = utils.cart_stats(cart)
 
     event_id = request.args.get('event_id')
 
     event_details = events_dao.get_details_by_event_id(event_id)
     tickets = ticket_dao.get_tickets_by_event_id(event_id)
-
+    tickets_dict = [
+        {
+            "id": t.id,
+            "type": t.type.value,
+            "price": t.price,
+            "quantity": t.quantity
+        }
+        for t in tickets
+    ]
     return render_template('detail_event.html', event=event_details, event_id=event_id, tickets=tickets,
-                           cart_info=cart_info)
+                           cart_info=cart_info,cart = cart,tickets_dict = tickets_dict)
 
 
 @app.route("/api/cart", methods=['post'])
@@ -273,20 +281,28 @@ def add_to_cart():
 
     session[key] = cart
 
+
     return jsonify(utils.cart_stats(cart))
 @app.route("/api/cart", methods=['put'])
 def remove_from_cart():
     key = app.config['CART_KEY']
+    # Nhận dữ liệu JSON từ FE, parse thành Python Object // Deserialize JSON -> Object(PythonObject)
 
+    #Xử lí logic xong, parse lại thành JSON gửi về clien (Serialize) thông quan jsonify
     data = request.json
+    # print(data)
     if not data or 'ticket_id' not in data:
         return jsonify({'error': 'Missing data in request'}), 400
     id = str(data['ticket_id'])
     cart = session.get(key, {})
     if id in cart:
+        # print('existed')
         cart[id]['quantity'] -= 1
         if(cart[id]['quantity'] <= 0):
             del cart[id]
+    else:
+        # print('none existed')
+        return  jsonify({'error' : 'Cannot update ticket has quantity = 0'}),400
 
 
 
@@ -296,7 +312,15 @@ def remove_from_cart():
 
 @app.route('/book_ticket')
 def book_ticket():
-    return render_template('book_ticket.html')
+    key = app.config['CART_KEY']
+
+    cart = session.get(key, None)
+    total = 0
+    for key in cart:
+        total += cart[key]['quantity'] * cart[key]['price']
+
+
+    return render_template('book_ticket.html',cart = cart,total = total)
 
 
 @app.route("/organizer")
