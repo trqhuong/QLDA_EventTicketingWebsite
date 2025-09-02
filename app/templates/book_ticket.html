@@ -49,25 +49,28 @@
                 <div class="row bold">
                     <span>Loại vé</span>
                     <span>Số lượng</span>
+
                 </div>
-                <div class="row">
-                    <span>loại vé</span>
-                    <span>số lượng</span>
+                {% for c in cart.values() %}
+                 <div class="row">
+                    <span>{{ c['type'] }}</span>
+                    <span>{{ c['quantity'] }}</span>
                 </div>
-                <div class="row">
-                    <span class="label">Giá vé</span>
-                    <span>0 VND</span>
-                </div>
-                <div class="row">
-                    <span class="label">Thành tiền</span>
-                    <span>000 VND</span>
-                </div>
+                {% endfor %}
+<!--                <div class="row">-->
+<!--                    <span class="label">Giá vé</span>-->
+<!--                    <span>0 VND</span>-->
+<!--                </div>-->
+<!--                <div class="row">-->
+<!--                    <span class="label">Thành tiền</span>-->
+<!--                    <span>000 VND</span>-->
+<!--                </div>-->
             </div>
             <div class="total">
-                <strong>Tổng tiền:</strong> 0 VND
+                <strong>Tổng tiền:</strong>{{ total }} VND
             </div>
             {% if current_user.is_authenticated %}
-            <button class="btn-pay">Thanh toán</button>
+            <button class="btn btn-pay">Thanh toán</button>
             {% else %}
             <a href="#" class="btn-pay">
                 Thanh toán
