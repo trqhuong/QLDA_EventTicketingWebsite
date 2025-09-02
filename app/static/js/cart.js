@@ -1,10 +1,14 @@
 function update_cart_ui(cartInfo,id,type) {
     // Cập nhật tổng tiền
+
     const totalPriceElement = document.getElementById('total-price');
+    const continueBtn = document.getElementById('continueBtn');
+//    if(continueBtn) {
+//        console.log("has btn continue");
+//    }
     if (totalPriceElement) {
         totalPriceElement.innerText = "Tạm tính: " + cartInfo.total;
     }
-
     // Cập nhật tổng số vé cho input
     if(type == "ADD"){
         const totalTicketsElementInput = document.getElementById(`quantity-${id}`);
@@ -13,16 +17,7 @@ function update_cart_ui(cartInfo,id,type) {
             if(isNaN(currentQuantity)){
                 currentQuantity = 0;
             }
-
             totalTicketsElementInput.value = currentQuantity + 1;
-            if(parseInt(totalTicketsElementInput.value) > 0){
-
-                let removeBtn = document.getElementById('removeBtn');
-                if(removeBtn.disabled == true){
-                    removeBtn.disabled = false
-                }
-
-            }
 
         }
     } else if(type == "REMOVE"){
@@ -30,18 +25,14 @@ function update_cart_ui(cartInfo,id,type) {
         if (totalTicketsElementInput) {
             let currentQuantity = parseInt(totalTicketsElementInput.value);
             totalTicketsElementInput.value = currentQuantity - 1;
-            if(parseInt(totalTicketsElementInput.value) === 0){
-                console.log("value = 0");
-                let removeBtn = document.getElementById('removeBtn');
-                if(removeBtn){
-                   console.log("has btn");
-                }
-                removeBtn.disabled = true
-            }
         }
     }
-
     document.getElementById('total_ticket').innerText = "Tổng số vé: " + cartInfo.total_ticket;
+    if(parseInt(cartInfo.total_ticket) === 0){
+        continueBtn.disabled = true;
+    } else {
+        continueBtn.disabled = false;
+    }
 }
 
 function add_to_cart(id, event_name, type, price) {
@@ -84,6 +75,7 @@ function add_to_cart(id, event_name, type, price) {
 }
 
 function remove_from_cart(id) {
+    console.log("received :", id);
     // axios fetch
     fetch('/api/cart',{
         method : 'put',
@@ -94,11 +86,19 @@ function remove_from_cart(id) {
             "Content-Type" : "application/json"
         }
     })
+    // Xử lí response trả về từ server
     .then(res => {
-        if(!res.ok){
-            throw new Error("Network response was not ok");
-        }
-        return res.json();
+        // Nhận dữ liệu JSON từ server, parse thành Javacript để xử lí dữ liệu (Deserialize)
+        return res.json().then(data => {
+            if (!res.ok) {
+                // Nếu response không thành công, ném lỗi với thông điệp từ server
+                // data.error sẽ chứa "Cannot update ticket has quantity = 0"
+                throw new Error(data.error);
+            }
+            // Nếu thành công, trả về dữ liệu bình thường
+            return data;
+        });
+        // JSON -> Javascript
     })
     .then(data => {
         if(data.error){
@@ -112,8 +112,13 @@ function remove_from_cart(id) {
 
     })
     .catch(error => {
-        // Bắt các lỗi xảy ra trong quá trình fetch hoặc khi xử lý response
-        console.error("Lỗi khi gửi yêu cầu:", error);
-        alert("Có lỗi xảy ra, vui lòng thử lại sau.");
+        // Bắt lỗi được ném ra từ khối .then() ở trên
+        // error.message chính là thông điệp lỗi từ server
+        console.error("Lỗi khi gửi yêu cầu:", error.message);
+        alert(error.message);
     });
+}
+
+function handleOnclick (cart) {
+    window.location.href = `http://127.0.0.1:5000/book_ticket`;
 }
