@@ -119,6 +119,39 @@ function remove_from_cart(id) {
     });
 }
 
-function handleOnclick (cart) {
+function handleOnclick () {
+
+
+    const ticketsEL = document.getElementById('tickets-data');
+
+    const tickets = JSON.parse(ticketsEL.dataset.tickets);
+
+
+
+    let valid = true;
+    let message = [];
+
+    for(let t of tickets) {
+        console.log(t.id);
+        let inputEL = document.getElementById(`quantity-${t.id}`);
+        if(inputEL){
+            console.log("has input element");
+        } else {
+            console.log(`quantity-${t.id}`);
+        }
+        let cartQuantity = parseInt(inputEL.value) || 0;
+        if(cartQuantity){
+            console.log(`Cart quantity: ${cartQuantity} `);
+        }
+        if(cartQuantity > t.quantity){
+            valid = false;
+            message.push(`Vé ${t.type} vượt quá số lượng còn lại ${t.quantity}`);
+        }
+    }
+    if (!valid) {
+        alert(message.join("\n"));
+        return;
+    }
+
     window.location.href = `http://127.0.0.1:5000/book_ticket`;
 }

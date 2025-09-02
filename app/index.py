@@ -49,7 +49,8 @@ def events_by_category(category):
 def detail_event():
     cart = session.get(app.config['CART_KEY'], {})
     if cart:
-        print(cart)
+        session.pop(app.config['CART_KEY'], None)
+        cart = {}
         # for cart_id,ticket_details in cart.items():
         #     print(f"ticket_id: {cart_id}, quantity: {ticket_details['quantity']} \n")
     else :
@@ -60,9 +61,17 @@ def detail_event():
 
     event_details = events_dao.get_details_by_event_id(event_id)
     tickets = ticket_dao.get_tickets_by_event_id(event_id)
-
+    tickets_dict = [
+        {
+            "id": t.id,
+            "type": t.type.value,
+            "price": t.price,
+            "quantity": t.quantity
+        }
+        for t in tickets
+    ]
     return render_template('detail_event.html', event=event_details, event_id=event_id, tickets=tickets,
-                           cart_info=cart_info,cart = cart)
+                           cart_info=cart_info,cart = cart,tickets_dict = tickets_dict)
 
 
 @app.route("/api/cart", methods=['post'])

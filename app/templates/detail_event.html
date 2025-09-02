@@ -53,14 +53,15 @@
     </div>
 </div>
 
-<div class="ticket-info">
+<div class="ticket-info" id="tickets-data" data-tickets='{{ tickets_dict | tojson }}' >
     <h3>Thông tin vé</h3>
     <p>Thời gian: 15/08/2025</p>
 
     {% for tick in tickets %}
-    <div class="row p-1 mt-1">
+    <div class="row p-1 mt-1" >
         <div class="col-4">
             <span>{{tick.type.value}}</span>
+            <span>Còn lại: {{ tick.quantity }}</span>
         </div>
         <div class="col-4">
             <span>Giá vé: {{tick.price}}</span>
@@ -72,7 +73,6 @@
             {% if tick.id|string in cart %}
             <input id="quantity-{{ tick.id }}" type="text" value="{{ cart[tick.id|string]['quantity'] }}" readonly>
             {% else %}
-
             <input id="quantity-{{tick.id}}" type="text" value="0" readonly>
             {% endif %}
 
@@ -104,11 +104,11 @@
         <span id="total_ticket"> Tổng vé: {{cart_info.total_ticket}}</span>
         <span id="total-price">Tạm tính: {{ cart_info.total }} VNĐ </span>
     </div>
-    {% if cart_info.total_ticket == 0 %}
-        <button id="continueBtn" class="btn btn-primary mt-1 " onclick="handleOnclick( {{ cart }} )" disabled>Tiếp tục thanh toán</button>
+    {% if not cart %}
+        <button id="continueBtn" class="checkout-btn" onclick="handleOnclick()" disabled>Tiếp tục thanh toán</button>
     {% endif %}
 
-    <!--    <button class="checkout-btn">Tiếp tục - 0 VND</button>-->
+
 </div>
 
 
