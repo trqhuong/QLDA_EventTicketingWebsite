@@ -10,6 +10,7 @@ from urllib.parse import quote
 from flask_dance.contrib.google import make_google_blueprint
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
 
@@ -18,15 +19,16 @@ app.config.update(
     SESSION_COOKIE_SECURE= True # nếu chạy HTTPS
 )
 
-app.secret_key = 'HJLIYYWO(&^((^NCHDKVIS'
+load_dotenv()
+app.secret_key = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/ticketsaledb?charset=utf8mb4" % quote('123456')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-
+app.config['CART_KEY'] = 'cart'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
 # --- cấu hình đăng nhập Google ---
-load_dotenv()
+
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret= os.getenv("GOOGLE_CLIENT_SECRET"),

@@ -3,23 +3,32 @@
 <form class="register-form" method="POST" enctype="multipart/form-data">
      <h2>Đăng ký tài khoản</h2>
         <!-- field ẩn role -->
-    <input type="hidden" name="role">
+    <input type="hidden" name="role" value="{{ role }}">
      <!-- Username -->
     <div class="mb-1 mt-1">
         <input type="text" value="{{ username|default('') }}" class="form-control"
                id="username" placeholder="Enter username" name="username" required>
+        {% if error_message and error_message.get('err_username') %}
+        <p class="text-danger error-message">{{ error_message['err_username'] }}</p>
+        {% endif %}
     </div>
 
     <!-- Email -->
     <div class="mt-1 mb-1">
         <input type="email" value="{{ email|default('') }}" class="form-control"
                id="email" placeholder="Enter email" name="email" required>
+        {% if error_message and error_message.get('err_email') %}
+        <p class="text-danger error-message">{{ error_message['err_email'] }}</p>
+        {% endif %}
     </div>
 
     <!-- Phone -->
     <div class="mt-1 mb-1">
         <input type="text" value="{{ phone|default('') }}" class="form-control"
                id="phone" placeholder="Enter phone number" name="phone" required>
+        {% if error_message and error_message.get('err_phone') %}
+        <p class="text-danger error-message">{{ error_message['err_phone'] }}</p>
+        {% endif %}
     </div>
 
     <!-- Password -->
@@ -32,6 +41,9 @@
     <div class="mt-1 mb-1">
         <input type="password" class="form-control" id="confirm"
                placeholder="Confirm password" name="confirm" required>
+        {% if error_message and error_message.get('err_password') %}
+        <p class="text-danger error-message">{{ error_message['err_password'] }}</p>
+        {% endif %}
     </div>
 
     <!-- Chỉ hiện khi role = ORGANIZER -->
@@ -40,10 +52,16 @@
         <div class="mt-1 mb-1">
             <input type="text" value="{{ company_name|default('') }}"
                    class="form-control" placeholder="Tên công ty" name="company_name" required>
+            {% if error_message and error_message.get('err_company') %}
+            <p class="text-danger error-message">{{ error_message['err_company'] }}</p>
+            {% endif %}
         </div>
         <div class="mt-1 mb-1">
             <input type="text" value="{{ tax_code|default('') }}"
                    class="form-control" placeholder="Mã số thuế" name="tax_code" required>
+            {% if error_message and error_message.get('err_tax_code') %}
+            <p class="text-danger error-message">{{ error_message['err_tax_code'] }}</p>
+            {% endif %}
         </div>
     </div>
     {% endif %}
