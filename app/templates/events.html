@@ -1,0 +1,27 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<section class="container my-5">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 save-date">
+        {% for e in events %}
+        <div class="col">
+            <a href="{{ url_for('detail_event', event_id=e.id) }}" class="text-decoration-none text-white">
+                <div class="card" style="background: #000000; border-radius: 0 0 15px 15px;">
+                    <img src="{{ url_for('static', filename='images/' ~ e.id ~ '.jpg') }}"
+                         class="card-img-top"
+                         alt="Image"
+                         style="border-top-left-radius: 0px; border-top-right-radius: 0 0 15px 15px;">
+                    <div class="card-body">
+                        <h5 class="card-title fs-4 fw-bold text-white">{{ e.name }}</h5>
+                        <p class="card-text text-success fw-bold fs-5">{{ e.price }} VND</p>
+                        <p class="fw-bold fs-5 text-white">
+                            <i class="far fa-calendar me-2"></i> {{ e.date }}
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

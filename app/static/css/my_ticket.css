@@ -1,0 +1,92 @@
+body {
+    background: #000000;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+/* Khung vé */
+.ticket-card {
+    display: flex;
+    align-items: center;
+    background-color: #3b3b3b;
+    border: 1px solid #666;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px auto;
+    width: 90%;
+    max-width: 800px;
+}
+
+/* Ảnh vé */
+.ticket-image {
+    flex: 0 0 200px;
+    height: 150px;
+    background-color: #000c18;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.ticket-image img {
+    width: 80px;
+    height: 80px;
+    opacity: 0.8;
+}
+
+/* Thông tin vé */
+.ticket-info {
+    flex: 1;
+}
+
+.ticket-info h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+}
+
+.ticket-info p, .ticket-info svg {
+    margin: 5px 0;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+/* Nút hành động */
+.ticket-actions {
+    margin-top: 10px;
+}
+
+.btn {
+    background: #009e60;
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    margin: 0 4px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Trạng thái */
+.status {
+    font-weight: bold;
+}
+
+.used {
+    color: #bbb;
+}
+
+.unused {
+    color: #fff;
+}
+
+/* Làm chữ Tổng tiền và Số vé lớn hơn */
+.ticket-info p strong,
+.ticket-info .highlight {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+}
