@@ -67,10 +67,10 @@ def add_organizer(username, password, email, company_name, tax_code, phone=None)
 
     # Tạo organizer
     organizer = Organizer(
-        CompanyName=company_name,
-        TaxCode=tax_code,
+        company_name=company_name,
+        tax_code=tax_code,
         user_id=user.id,
-        Status=ReviewStatus.PENDING_APPROVAL
+        status=ReviewStatus.PENDING_APPROVAL
     )
     db.session.add(organizer)
     db.session.commit()

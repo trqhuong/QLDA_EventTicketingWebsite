@@ -23,15 +23,32 @@ def index():
     cities = events_dao.get_all_locations()
     event_types = events_dao.get_all_event_types()
 
+    page = request.args.get("page", 1, type=int)
+    pagination = events_dao.get_all_events(page=page, per_page=3)
+    events = pagination.items
+    return render_template("index.html", artists=artists, cities=cities, events=events, pagination=pagination, event_types=event_types)
+
+@app.route('/search')
+def search():
+    artists = events_dao.get_all_artists()
+    cities = events_dao.get_all_locations()
+    event_types = events_dao.get_all_event_types()
+
     event_type_id = request.args.get("event_type_id", type=int)
     city_id = request.args.get("city_id", type=int)
     artist_id = request.args.get("artist_id", type=int)
     kw = request.args.get("kw", type=str)
 
     page = request.args.get("page", 1, type=int)
-    pagination = events_dao.get_all_events(page=page, per_page=3, event_type_id=event_type_id, city_id=city_id, artist_id=artist_id, kw=kw)
+    pagination = events_dao.get_all_events(page=page, per_page=3, event_type_id=event_type_id, city_id=city_id,
+                                           artist_id=artist_id, kw=kw)
+
     events = pagination.items
-    return render_template("index.html", artists=artists, cities=cities, events=events, pagination=pagination, event_types=event_types)
+    return render_template("events.html", artists=artists, cities=cities, events=events, pagination=pagination,
+                           event_types=event_types,selected_event_type=event_type_id,
+    selected_artist=artist_id,
+    selected_city=city_id,
+    kw=kw)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

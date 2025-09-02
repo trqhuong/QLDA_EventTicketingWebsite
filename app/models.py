@@ -120,39 +120,8 @@ class EventArtist(Base):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.session.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
-        db.session.commit()
-
-        # List tables in the correct order to avoid foreign key errors
-        tables_to_drop = [
-            'bill__detail',
-            'ticket',
-            'event__artist',
-            'event',
-            'event__type',
-            'bill',
-            'organizer',
-            'artist',
-            'district',
-            'user',
-            'city',
-        ]
-
-        for table_name in tables_to_drop:
-            try:
-                db.session.execute(text(f"DROP TABLE IF EXISTS `{table_name}`;"))
-                print(f"Dropped table: {table_name}")
-            except Exception as e:
-                print(f"Error dropping table {table_name}: {e}")
-
-        db.session.commit()
-
-        print("Creating all tables...")
-        db.metadata.create_all(bind=db.engine)
-
-        db.session.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
-        db.session.commit()
-        print("Database schema created successfully.")
+        # db.drop_all()
+        db.create_all()
 
         # --- User ---
         admin = User(
