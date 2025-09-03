@@ -53,6 +53,38 @@ body {
 }
 
 
+.pagination {
+    --green: #198754;
+    --green-dark: #146c43;
+    --black: #121212;
 
+    display: flex;
+    gap: 6px;
+}
 
+.page-item .page-link {
+    color: var(--green);
+    background-color: var(--black);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    padding: 8px 14px;
+    transition: all 0.3s ease;
+}
 
+.page-item .page-link:hover {
+    background-color: var(--green-dark);
+    color: #fff;
+}
+
+.page-item.active .page-link {
+    background-color: var(--green);
+    border-color: var(--green);
+    color: #fff;
+    font-weight: bold;
+}
+
+.page-item.disabled .page-link {
+    background-color: #222;
+    color: #666;
+    border-color: #333;
+}

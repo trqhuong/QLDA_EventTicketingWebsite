@@ -75,7 +75,7 @@ class Event(Base):
     time = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
     date = Column(Date, nullable=False)
     description= Column(String(100), nullable=True)
-    address = Column(String(255), nullable=True)
+    address = Column(String(255), nullable=False)
     event_type_id= Column(Integer, ForeignKey("event_type.id"))
     event_type = relationship("EventType", backref="events", lazy=True)
     organizer_id= Column(Integer, ForeignKey("organizer.id"))
@@ -123,7 +123,7 @@ class EventArtist(Base):
 if __name__ == '__main__':
     with app.app_context():
         # db.drop_all()
-        db.create_all()
+        # db.create_all()
 
         # --- User ---
         admin = User(
@@ -228,6 +228,7 @@ if __name__ == '__main__':
             time=time(17, 0),
             date=date(2025, 9, 15),
             description="Đỉnh nóc kịch trần bay phấp phới",
+            address="123 Nguyễn Kiệm",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -240,6 +241,7 @@ if __name__ == '__main__':
             time=time(18, 0),
             date=date(2025, 10, 10),
             description="Đỉnh nóc kịch trần bay phấp phới",
+            address="123 Nguyễn Du",
             event_type_id=event_type2.id,
             organizer_id=2,
             city_id=city1.id,
@@ -252,6 +254,7 @@ if __name__ == '__main__':
             time=time(18, 10),
             date=date(2025, 9, 23),
             description="Thể hiện vẽ đẹp cổ xưa của Hội An",
+            address="123 Lê Lợi",
             event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
@@ -264,6 +267,7 @@ if __name__ == '__main__':
             time=time(14, 0),
             date=date(2025, 9, 20),
             description="Kịnh tính, sống động",
+            address="123 Nguyễn Chi Phương",
             event_type_id=event_type3.id,
             organizer_id=1,
             city_id=city2.id,
@@ -276,6 +280,7 @@ if __name__ == '__main__':
             time=time(15, 0),
             date=date(2025, 10, 10),
             description="Hài hước, vui nhộn",
+            address="123 Trần Phú",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -288,6 +293,7 @@ if __name__ == '__main__':
             time=time(19, 0),
             date=date(2025, 10, 1),
             description="Ngày xửa ngày xưa",
+            address="14 Nguyễn Trãi",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -300,6 +306,7 @@ if __name__ == '__main__':
             time=time(14, 30),
             date=date(2025, 9, 10),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            address="số 2 Phan Đình Phùng",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -312,6 +319,7 @@ if __name__ == '__main__':
             time=time(20, 0),
             date=date(2025, 11, 1),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            address="54 Hoàng Văn Thụ",
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
@@ -324,6 +332,7 @@ if __name__ == '__main__':
             time=time(9, 0),
             date=date(2025, 9, 10),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            address="34 Cộng Hòa",
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
