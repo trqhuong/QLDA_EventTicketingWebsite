@@ -280,8 +280,6 @@ def add_to_cart():
 
 
     session[key] = cart
-
-
     return jsonify(utils.cart_stats(cart))
 @app.route("/api/cart", methods=['put'])
 def remove_from_cart():
@@ -318,9 +316,11 @@ def book_ticket():
     total = 0
     for key in cart:
         total += cart[key]['quantity'] * cart[key]['price']
+    event_id = request.args.get('event_id')
 
+    event_details = events_dao.get_details_by_event_id(event_id)
 
-    return render_template('book_ticket.html',cart = cart,total = total)
+    return render_template('book_ticket.html',cart = cart,total = total,event_details=event_details)
 
 
 @app.route("/organizer")

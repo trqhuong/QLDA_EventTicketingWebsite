@@ -49,6 +49,7 @@ def get_details_by_event_id(event_id = None):
         'date': event.date.strftime('%d-%m-%Y'),
         'description': event.description,
         'type': event.event_type.name,
-        'location': location_info
+        'location': location_info,
+        'image_url' : event.image_url
     }
     return event_details;
