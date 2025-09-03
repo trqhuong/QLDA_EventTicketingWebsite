@@ -41,7 +41,7 @@ class Event(unittest.TestCase):
         events = get_all_events(kw="Nhạc")
         for e in events.items:
             assert "Nhạc" in e.name
-            
+
     def test_get_details_by_event_id(self):
 
         event_id = 1

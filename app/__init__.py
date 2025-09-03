@@ -21,7 +21,7 @@ app.config.update(
 
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/ticketsaledb?charset=utf8mb4" % quote('Admin@123')
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/ticketsaledb?charset=utf8mb4" % quote('123456')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config['CART_KEY'] = 'cart'
 db = SQLAlchemy(app)

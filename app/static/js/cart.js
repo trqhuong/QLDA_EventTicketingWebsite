@@ -119,7 +119,7 @@ function remove_from_cart(id) {
     });
 }
 
-function handleOnclick () {
+function handleOnclick (eventId) {
 
 
     const ticketsEL = document.getElementById('tickets-data');
@@ -153,5 +153,5 @@ function handleOnclick () {
         return;
     }
 
-    window.location.href = `http://127.0.0.1:5000/book_ticket`;
+    window.location.href = `http://127.0.0.1:5000/book_ticket?event_id=${eventId}`;
 }

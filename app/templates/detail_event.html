@@ -49,7 +49,7 @@
     </div>
 
     <div class="image-section">
-        <!--        <img src="{{ url_for('static', filename=event.image) }}" alt="Ảnh sự kiện">-->
+                <img src="{{ event.image_url}}" alt="Ảnh sự kiện">
     </div>
 </div>
 
@@ -105,7 +105,7 @@
         <span id="total-price">Tạm tính: {{ cart_info.total }} VNĐ </span>
     </div>
     {% if not cart %}
-        <button id="continueBtn" class="checkout-btn" onclick="handleOnclick()" disabled>Tiếp tục thanh toán</button>
+        <button id="continueBtn" class="checkout-btn" onclick="handleOnclick( {{ event_id }} )" disabled>Tiếp tục thanh toán</button>
     {% endif %}
 
 
