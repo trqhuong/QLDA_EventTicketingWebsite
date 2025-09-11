@@ -1,7 +1,7 @@
 import unittest
 from app import app, db
 from app.models import User, Organizer, Role, ReviewStatus
-from app.dao.events_dao import get_all_events
+from app.dao.events_dao import get_all_events,get_details_by_event_id
 
 
 class Event(unittest.TestCase):
@@ -42,5 +42,19 @@ class Event(unittest.TestCase):
         for e in events.items:
             assert "Nhạc" in e.name
 
+    def test_get_details_by_event_id(self):
+
+        event_id = 1
+        event_details = get_details_by_event_id(event_id)
+
+        self.assertIsNotNone(event_details,"Event details không được None")
+
+        self.assertIn("name", event_details)
+        self.assertIn("time", event_details)
+        self.assertIn("date", event_details)
+        self.assertIn("type", event_details)
+        self.assertIn("location", event_details)
+
+        pass
 if __name__=="__main__":
     unittest.main()

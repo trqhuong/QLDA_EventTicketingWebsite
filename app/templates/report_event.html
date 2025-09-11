@@ -1,0 +1,136 @@
+{% extends 'organizer_layout/base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
+
+
+<div class="container my-4">
+    <h3 class="text-success fw-bold mb-4">📊 Thống kê sự kiện & doanh thu</h3>
+    <!-- Bộ lọc năm & tháng -->
+    <div class="d-flex justify-content-center align-items-center mb-4 gap-2">
+        <!-- Chọn năm -->
+        <select class="form-select filter-select w-auto">
+            <option>-- Chọn năm --</option>
+            <option>2023</option>
+            <option>2024</option>
+            <option>2025</option>
+        </select>
+
+        <!-- Chọn tháng -->
+        <select class="form-select filter-select w-auto">
+            <option>-- Chọn tháng --</option>
+            <option>Tháng 1</option>
+            <option>Tháng 2</option>
+            <option>Tháng 3</option>
+            <option>Tháng 4</option>
+        </select>
+
+        <!-- Nút lọc -->
+        <button class="btn btn-success">Lọc</button>
+    </div>
+
+    <!-- Thống kê nhanh -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="stat-card text-center">
+                <h5 class="text-secondary">Tổng số sự kiện</h5>
+                <p class="stat-number text-success">12</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card text-center">
+                <h5 class="text-secondary">Tổng doanh thu</h5>
+                <p class="stat-number text-success">1.200.000.000 VND</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h6 class="mb-3">Sự kiện theo tháng</h6>
+                <canvas id="eventsChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h6 class="mb-3">Doanh thu theo tháng</h6>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu mẫu
+    const months = ["1", "2", "3", "4", "5", "6"];
+    const eventsData = [2, 1, 3, 2, 4, 0];
+    const revenueData = [200, 150, 400, 300, 120, 80];
+
+    // Chart sự kiện
+    new Chart(document.getElementById("eventsChart"), {
+      type: "bar",
+      data: {
+        labels: months,
+        datasets: [{
+          label: "Số sự kiện",
+          data: eventsData,
+          backgroundColor: "rgba(25,135,84,0.8)"
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            ticks: {
+              color: "#fff",
+              font: { size: 14, weight: "bold" }
+            },
+            grid: { color: "rgba(255,255,255,0.1)" }
+          },
+          x: {
+            ticks: {
+              color: "#fff",
+              font: { size: 14, weight: "bold" }
+            },
+            grid: { color: "rgba(255,255,255,0.1)" }
+          }
+        }
+      }
+    });
+
+    // Chart doanh thu
+    new Chart(document.getElementById("revenueChart"), {
+      type: "line",
+      data: {
+        labels: months,
+        datasets: [{
+          label: "Doanh thu (triệu VND)",
+          data: revenueData,
+          borderColor: "rgba(25,135,84,0.9)",
+          backgroundColor: "rgba(25,135,84,0.2)",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            ticks: {
+              color: "#fff",
+              font: { size: 14, weight: "bold" }
+            },
+            grid: { color: "rgba(255,255,255,0.1)" }
+          },
+          x: {
+            ticks: {
+              color: "#fff",
+              font: { size: 14, weight: "bold" }
+            },
+            grid: { color: "rgba(255,255,255,0.1)" }
+          }
+        }
+      }
+    });
+</script>
+{% endblock %}

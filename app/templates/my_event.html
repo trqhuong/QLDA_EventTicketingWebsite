@@ -1,0 +1,38 @@
+{% extends 'organizer_layout/base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_event.css') }}">
+<div class="container py-4">
+
+    <!-- Tiêu đề -->
+    <h4 class="fw-bold mb-3">Sự kiện của tôi</h4>
+
+    <!-- Tìm kiếm -->
+    <div class="d-flex mb-3">
+        <input type="text" class="form-control form-control-sm me-2" placeholder="Tìm kiếm sự kiện">
+        <button class="btn btn-dark btn-sm">Tìm kiếm</button>
+    </div>
+
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs border-0 mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Chờ duyệt</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Sắp tới</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Đã qua</a>
+        </li>
+
+    </ul>
+
+    <!-- Nội dung rỗng -->
+    <div class="empty-box">
+        <img src="/static/images/empty.png" alt="empty">
+        <p class="mt-2">Không có dữ liệu</p>
+    </div>
+
+</div>
+{% endblock %}

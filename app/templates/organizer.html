@@ -1,3 +1,4 @@
+
 {% extends 'organizer_layout/base.html' %} {% block content %}
 <link
   rel="stylesheet"
@@ -159,5 +160,180 @@
         });
     }
   });
+</script>
+{% endblock %}
+{% extends 'organizer_layout/base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/organizer.css') }}">
+<div class="container mt-4">
+    <!-- Thông tin sự kiện -->
+    <h5 class="text-success fw-bold">Thông tin sự kiện</h5>
+
+    <div class="form-container d-flex p-3 mt-3">
+        <!-- Khung tải ảnh sự kiện -->
+        <div class="upload-box me-4">
+            <label for="eventImage" class="upload-label">
+                <span>📷<br>Tải hình ảnh sự kiện</span>
+                <input type="file" id="eventImage" hidden>
+            </label>
+        </div>
+
+        <!-- Form sự kiện -->
+        <div class="flex-grow-1">
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-white">Tên sự kiện</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control dark-input">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-white">Tỉnh/Thành</label>
+                <div class="col-sm-9">
+                    <select class="form-control dark-input">
+                        <option value="">-- Chọn Tỉnh/Thành --</option>
+                        <option value="Hà Nội">Hà Nội</option>
+                        <option value="TP.HCM">TP.Hồ Chí Minh</option>
+                        <option value="Đà Nẵng">Đà Nẵng</option>
+                        <option value="Hải Phòng">Hải Phòng</option>
+                        <option value="Cần Thơ">Cần Thơ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-white">Quận/Huyện</label>
+                <div class="col-sm-9">
+                    <select class="form-control dark-input">
+                        <option value="">-- Chọn Quận/Huyện --</option>
+                        <option value="Quận 1">Quận 1</option>
+                        <option value="Quận 2">Quận 2</option>
+                        <option value="Quận 3">Quận 3</option>
+                        <option value="Quận 4">Quận 4</option>
+                        <option value="Quận 5">Quận 5</option>
+                        <option value="Huyện Bình Chánh">Huyện Bình Chánh</option>
+                        <option value="Huyện Củ Chi">Huyện Củ Chi</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-white">Số nhà,tên đường</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control dark-input">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-white">Thể loại</label>
+                <div class="col-sm-9">
+                    <select class="form-select dark-input">
+                        <option>--Chọn loại sự kiện--</option>
+                        <option>Hội thảo</option>
+                        <option>Ca nhạc</option>
+                        <option>Thể thao</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-form-label text-white">Mô tả sự kiện:</label>
+                <div class="col-sm-9">
+                    <textarea rows="3" class="form-control dark-input"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <!-- Thời gian sự kiện -->
+    <h5 class="text-success fw-bold">Thời gian sự kiện</h5>
+
+    <div class="form-container d-flex p-3 mt-3">
+        <div class="flex-grow-1 row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label text-white">Giờ tổ chức:</label>
+                    <input type="time" class="form-control dark-input">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white">Ngày tổ chức:</label>
+                    <input type="date" class="form-control dark-input">
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label text-white">Thời gian cho phép hủy/đổi:</label>
+                    <input type="text" class="form-control dark-input" placeholder="VD: 24 giờ trước sự kiện">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loại vé -->
+    <h5 class="text-success fw-bold mt-4">Loại vé</h5>
+
+    <div class="form-container d-flex p-3 mt-3">
+        <div class="flex-grow-1 row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label text-white">Tên loại vé:</label>
+                    <select class="form-select dark-input">
+                        <option>--Chọn loại vé--</option>
+                        <option>Vé thường</option>
+                        <option>VIP</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white">Số lượng vé bán:</label>
+                    <input type="text" class="form-control dark-input">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white">Số lượng vé / người:</label>
+                    <input type="text" class="form-control dark-input">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label text-white">Giá vé (VND):</label>
+                    <input type="text" class="form-control dark-input">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white">Ngày mở bán:</label>
+                    <input type="date" class="form-control dark-input">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white">Ngày kết thúc bán:</label>
+                    <input type="date" class="form-control dark-input">
+                </div>
+                <div class="mt-3 text-end">
+                    <button class="btn btn-success">+ Thêm loại vé</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3 text-end">
+        <a href="#" class="btn btn-success">Tạo sự kiện</a>
+    </div>
+</div>
+
+
+<script>
+    // Gắn sự kiện cho nút thêm loại vé
+    document.addEventListener("click", function(e) {
+        if (e.target && e.target.classList.contains("add-ticket")) {
+            let container = document.getElementById("ticket-container");
+            let ticketForm = e.target.closest(".ticket-form");
+            let clone = ticketForm.cloneNode(true);
+
+            // reset dữ liệu input trong form mới
+            clone.querySelectorAll("input").forEach(input => input.value = "");
+            clone.querySelectorAll("select").forEach(select => select.selectedIndex = 0);
+
+            container.appendChild(clone);
+        }
+    });
 </script>
 {% endblock %}

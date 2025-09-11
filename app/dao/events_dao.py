@@ -153,3 +153,25 @@ def create_event_with_tickets(name, city_id, district_id, address, event_type_id
     except Exception as e:
         db.session.rollback()
         raise e
+
+def get_details_by_event_id(event_id = None):
+
+    event = Event.query.get(event_id)
+    if(not event):
+        return None
+
+    location_info = {
+        'city' : event.city.name,
+        'district' : event.district.name,
+    }
+    event_details = {
+        'event_id': event.id,
+        'name': event.name,
+        'time': event.time.strftime('%H:%M'),
+        'date': event.date.strftime('%d-%m-%Y'),
+        'description': event.description,
+        'type': event.event_type.name,
+        'location': location_info,
+        'image_url' : event.image_url
+    }
+    return event_details;
