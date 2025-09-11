@@ -1,0 +1,466 @@
+{% extends 'organizer_layout/base.html' %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/organizer.css') }}"
+/>
+<!-- Cloudinary Upload Widget -->
+<script
+  src="https://upload-widget.cloudinary.com/global/all.js"
+  type="text/javascript"
+></script>
+
+<div class="container mt-4">
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <div class="d-flex align-items-center mb-4">
+    <h5 class="text-success fw-bold mb-0">Tạo sự kiện mới</h5>
+    <div class="ms-3">
+      <small class="text-muted"
+        >Điền đầy đủ thông tin để tạo sự kiện của bạn</small
+      >
+    </div>
+  </div>
+
+  <form
+    method="POST"
+    action="{{ url_for('create_event_form') }}"
+    enctype="multipart/form-data"
+  >
+    <!-- Thông tin sự kiện -->
+    <div class="form-container p-3 mt-3">
+      <h6 class="text-white mb-3">
+        <i class="bi bi-info-circle me-2"></i>Thông tin cơ bản
+      </h6>
+      <p class="text-muted small mb-3">
+        Nhập thông tin cơ bản về sự kiện của bạn
+      </p>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">
+          <span class="text-danger">*</span> Tên sự kiện
+        </label>
+        <div class="col-sm-9">
+          <input
+            type="text"
+            name="event_name"
+            class="form-control dark-input"
+            required
+            placeholder="Nhập tên sự kiện..."
+          />
+          <small class="text-muted">Tên sự kiện sẽ hiển thị công khai</small>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">
+          <span class="text-danger">*</span> Ảnh sự kiện
+        </label>
+        <div class="col-sm-9">
+          <div
+            class="upload-area p-3 border border-dashed border-secondary rounded text-center"
+          >
+            <label for="avatar">Avatar</label>
+        <input type="file" name="image_url" class="form-control" placeholder="Choose Avatar" id="avatar">
+            <small class="text-muted d-block mt-2"
+              >Định dạng: JPG, PNG. Kích thước tối đa: 5MB</small
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">
+          <span class="text-danger">*</span> Tỉnh/Thành
+        </label>
+        <div class="col-sm-9">
+          <select
+            name="city_id"
+            id="citySelect"
+            class="form-control dark-input"
+            required
+          >
+            <option value="">-- Chọn Tỉnh/Thành --</option>
+            {% for city in cities %}
+            <option value="{{ city.id }}">{{ city.name }}</option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">Chọn tỉnh/thành phố tổ chức sự kiện</small>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">
+          <span class="text-danger">*</span> Quận/Huyện
+        </label>
+        <div class="col-sm-9">
+          <select
+            name="district_id"
+            id="districtSelect"
+            class="form-control dark-input"
+            required
+          >
+            <option value="">-- Chọn Quận/Huyện --</option>
+          </select>
+          <small class="text-muted"
+            >Chọn quận/huyện sau khi đã chọn tỉnh/thành</small
+          >
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">
+          <span class="text-danger">*</span> Địa chỉ chi tiết
+        </label>
+        <div class="col-sm-9">
+          <input
+            type="text"
+            name="address"
+            class="form-control dark-input"
+            required
+            placeholder="Số nhà, tên đường..."
+          />
+          <small class="text-muted">Địa chỉ cụ thể nơi tổ chức sự kiện</small>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">
+          <span class="text-danger">*</span> Thể loại
+        </label>
+        <div class="col-sm-9">
+          <select name="event_type_id" class="form-select dark-input" required>
+            <option value="">--Chọn loại sự kiện--</option>
+            {% for event_type in event_types %}
+            <option value="{{ event_type.id }}">{{ event_type.name }}</option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">Chọn thể loại phù hợp với sự kiện</small>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label">Mô tả sự kiện</label>
+        <div class="col-sm-9">
+          <textarea
+            name="description"
+            rows="4"
+            class="form-control dark-input"
+            placeholder="Mô tả chi tiết về sự kiện, chương trình, quy định..."
+          ></textarea>
+          <small class="text-muted"
+            >Thông tin chi tiết giúp khách hàng hiểu rõ hơn về sự kiện</small
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Thời gian sự kiện -->
+    <div class="form-container p-3 mt-3">
+      <h6 class="text-white mb-3">
+        <i class="bi bi-calendar me-2"></i>Thời gian sự kiện
+      </h6>
+      <p class="text-muted small mb-3">Thiết lập thời gian diễn ra sự kiện</p>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">
+              <span class="text-danger">*</span> Ngày bắt đầu
+            </label>
+            <input
+              type="date"
+              name="start_date"
+              class="form-control dark-input"
+              required
+            />
+            <small class="text-muted">Ngày bắt đầu sự kiện</small>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">
+              <span class="text-danger">*</span> Giờ bắt đầu
+            </label>
+            <input
+              type="time"
+              name="start_time"
+              class="form-control dark-input"
+              required
+            />
+            <small class="text-muted">Giờ bắt đầu sự kiện</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Ngày kết thúc</label>
+            <input
+              type="date"
+              name="end_date"
+              class="form-control dark-input"
+            />
+            <small class="text-muted">Để trống nếu sự kiện trong 1 ngày</small>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Giờ kết thúc</label>
+            <input
+              type="time"
+              name="end_time"
+              class="form-control dark-input"
+            />
+            <small class="text-muted">Giờ dự kiến kết thúc</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thông tin vé -->
+    <div class="form-container p-3 mt-3">
+      <h6 class="text-white mb-3">
+        <i class="bi bi-ticket me-2"></i>Thông tin vé
+      </h6>
+      <p class="text-muted small mb-3">Thiết lập các loại vé cho sự kiện</p>
+
+      <div id="ticketContainer">
+        <!-- Vé mặc định -->
+        <div class="ticket-item border border-secondary rounded p-3 mb-3">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">
+                  <span class="text-danger">*</span> Giá vé (VNĐ)
+                </label>
+                <input
+                  type="number"
+                  name="ticket_price[]"
+                  class="form-control dark-input"
+                  required
+                  min="0"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">
+                  <span class="text-danger">*</span> Số lượng
+                </label>
+                <input
+                  type="number"
+                  name="ticket_quantity[]"
+                  class="form-control dark-input"
+                  required
+                  min="1"
+                  placeholder="100"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Mô tả loại vé</label>
+            <textarea
+              name="ticket_description[]"
+              rows="2"
+              class="form-control dark-input"
+              placeholder="Mô tả quyền lợi của loại vé này..."
+            ></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">
+                  <span class="text-danger">*</span> Loại vé (Enum)
+                </label>
+                <select name="ticket_type[]" class="form-select dark-input" required>
+                  <option value="">--Chọn loại vé--</option>
+                  {% for ticket_type in ticket_types %}
+                    <option value="{{ ticket_type.name }}">{{ ticket_type.value }}</option>
+                  {% endfor %}
+                </select>
+                <small class="text-muted">Chọn loại vé (Standard/VIP)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="addTicketBtn" class="btn btn-outline-success">
+        <i class="bi bi-plus-circle me-2"></i>Thêm loại vé
+      </button>
+    </div>
+
+    <div class="text-end mt-4">
+      <a href="{{ url_for('organizer') }}" class="btn btn-secondary me-2">
+        <i class="bi bi-arrow-left me-1"></i>Hủy
+      </a>
+      <button type="submit" class="btn btn-success px-4">
+        <i class="bi bi-check-circle me-1"></i>Tạo sự kiện
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Load districts based on city selection
+  document.getElementById("citySelect").addEventListener("change", function () {
+    const cityId = this.value;
+    const districtSelect = document.getElementById("districtSelect");
+
+    // Xóa các option cũ
+    districtSelect.innerHTML =
+      '<option value="">-- Chọn Quận/Huyện --</option>';
+
+    if (cityId) {
+      // Gọi API để lấy danh sách quận/huyện
+      fetch(`/api/districts/${cityId}`)
+        .then((response) => response.json())
+        .then((districts) => {
+          districts.forEach((district) => {
+            const option = document.createElement("option");
+            option.value = district.id;
+            option.textContent = district.name;
+            districtSelect.appendChild(option);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching districts:", error);
+        });
+    }
+  });
+
+  // Ticket management
+  let ticketCount = 1;
+
+  document
+    .getElementById("addTicketBtn")
+    .addEventListener("click", function () {
+      ticketCount++;
+      const ticketContainer = document.getElementById("ticketContainer");
+
+      const newTicketHTML = `
+      <div class="ticket-item border border-secondary rounded p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-white mb-0">Loại vé #${ticketCount}</h6>
+          <button type="button" class="btn btn-sm btn-outline-danger remove-ticket">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+        
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">
+                <span class="text-danger">*</span> Giá vé (VNĐ)
+              </label>
+              <input
+                type="number"
+                name="ticket_price[]"
+                class="form-control dark-input"
+                required
+                min="0"
+                placeholder="0"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">
+                <span class="text-danger">*</span> Số lượng
+              </label>
+              <input
+                type="number"
+                name="ticket_quantity[]"
+                class="form-control dark-input"
+                required
+                min="1"
+                placeholder="100"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Mô tả loại vé</label>
+          <textarea
+            name="ticket_description[]"
+            rows="2"
+            class="form-control dark-input"
+            placeholder="Mô tả quyền lợi của loại vé này..."
+          ></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">
+                <span class="text-danger">*</span> Loại vé (Enum)
+              </label>
+              <select name="ticket_type[]" class="form-select dark-input" required>
+                <option value="">--Chọn loại vé--</option>
+                {% for ticket_type in ticket_types %}
+                  <option value="{{ ticket_type.name }}">{{ ticket_type.value }}</option>
+                {% endfor %}
+              </select>
+              <small class="text-muted">Chọn loại vé (Standard/VIP)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+      ticketContainer.insertAdjacentHTML("beforeend", newTicketHTML);
+      updateRemoveButtons();
+    });
+
+  // Remove ticket functionality
+  document.addEventListener("click", function (e) {
+    if (e.target.closest(".remove-ticket")) {
+      e.target.closest(".ticket-item").remove();
+      updateTicketNumbers();
+      updateRemoveButtons();
+    }
+  });
+
+  function updateRemoveButtons() {
+    const tickets = document.querySelectorAll(".ticket-item");
+    const removeButtons = document.querySelectorAll(".remove-ticket");
+
+    if (tickets.length <= 1) {
+      removeButtons.forEach((btn) => (btn.style.display = "none"));
+    } else {
+      removeButtons.forEach((btn) => (btn.style.display = "block"));
+    }
+  }
+
+  function updateTicketNumbers() {
+    const tickets = document.querySelectorAll(".ticket-item");
+    tickets.forEach((ticket, index) => {
+      const title = ticket.querySelector("h6");
+      title.textContent = `Loại vé #${index + 1}`;
+    });
+    ticketCount = tickets.length;
+  }
+</script>
+{% endblock %}

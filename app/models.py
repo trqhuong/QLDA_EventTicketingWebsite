@@ -72,9 +72,12 @@ class EventType(Base):
 
 class Event(Base):
     name = Column(String(50), nullable=False)
-    time = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
-    date = Column(Date, nullable=False)
+    startTime = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
+    endTime = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
+    startDate = Column(Date, nullable=False)
+    endDate = Column(Date, nullable=False)
     description= Column(String(100), nullable=True)
+    image = Column(String(255), nullable=False)
     address = Column(String(255), nullable=True)
     event_type_id= Column(Integer, ForeignKey("event_type.id"))
     event_type = relationship("EventType", backref="events", lazy=True)
@@ -86,6 +89,8 @@ class Event(Base):
 
 
 class Ticket(Base):
+    name = Column(String(100), nullable=False)  # Thêm field name cho ticket
+    description = Column(String(255), nullable=True)  # Thêm field description cho ticket
     status=Column(Enum(TicketStatus), nullable=False, default=TicketStatus.Available)
     type =Column(Enum(TypeTicket), nullable=False, default=TypeTicket.Standard)
     price = Column(Float, nullable=False)
@@ -225,9 +230,12 @@ if __name__ == '__main__':
         #------Event-------
         event1 = Event(
             name="Concert Anh trai vượt ngàn chông gai",
-            time=time(17, 0),
-            date=date(2025, 9, 15),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Đỉnh nóc kịch trần bay phấp phới",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -237,9 +245,12 @@ if __name__ == '__main__':
 
         event2 = Event(
             name="Concert Anh trai SAY HI",
-            time=time(18, 0),
-            date=date(2025, 10, 10),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Đỉnh nóc kịch trần bay phấp phới",
+            image="",
             event_type_id=event_type2.id,
             organizer_id=2,
             city_id=city1.id,
@@ -249,9 +260,12 @@ if __name__ == '__main__':
 
         event3 = Event(
             name="Kí ức Hội An",
-            time=time(18, 10),
-            date=date(2025, 9, 23),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Thể hiện vẽ đẹp cổ xưa của Hội An",
+            image="",
             event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
@@ -261,9 +275,12 @@ if __name__ == '__main__':
 
         event4 = Event(
             name="Conan movie 27",
-            time=time(14, 0),
-            date=date(2025, 9, 20),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Kịnh tính, sống động",
+            image="",
             event_type_id=event_type3.id,
             organizer_id=1,
             city_id=city2.id,
@@ -273,9 +290,12 @@ if __name__ == '__main__':
 
         event5 = Event(
             name="Xóm trọ lắm trò",
-            time=time(15, 0),
-            date=date(2025, 10, 10),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Hài hước, vui nhộn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -284,10 +304,13 @@ if __name__ == '__main__':
         )
 
         event6 = Event(
-            name="Thứ 4 vui vẻ",
-            time=time(19, 0),
-            date=date(2025, 10, 1),
+            name="Th��� 4 vui vẻ",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Ngày xửa ngày xưa",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -297,9 +320,12 @@ if __name__ == '__main__':
 
         event7 = Event(
             name="Doremon và Cuộc phiêu lưu vào thế giới trong tranh",
-            time=time(14, 30),
-            date=date(2025, 9, 10),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
@@ -309,9 +335,12 @@ if __name__ == '__main__':
 
         event8 = Event(
             name="Yêu nhầm bạn thân",
-            time=time(20, 0),
-            date=date(2025, 11, 1),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
@@ -321,9 +350,12 @@ if __name__ == '__main__':
 
         event9 = Event(
             name="Triển lãm quốc tế thể thao và giải trí ngoài trời",
-            time=time(9, 0),
-            date=date(2025, 9, 10),
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
             description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
