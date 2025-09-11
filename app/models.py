@@ -72,20 +72,23 @@ class EventType(Base):
 
 class Event(Base):
     name = Column(String(50), nullable=False)
-    time = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
-    date = Column(Date, nullable=False)
-    description= Column(String(500), nullable=True)
-    address = Column(String(255), nullable=False)
+    startTime = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
+    endTime = Column(Time, nullable=False,default=lambda: time(0, 0, 0))
+    startDate = Column(Date, nullable=False)
+    endDate = Column(Date, nullable=False)
+    description= Column(String(100), nullable=True)
+    image = Column(String(255), nullable=False)
+    address = Column(String(255), nullable=True)
     event_type_id= Column(Integer, ForeignKey("event_type.id"))
-    event_type = relationship("EventType", backref="events", lazy=True)
     organizer_id= Column(Integer, ForeignKey("organizer.id"))
     ticket=relationship('Ticket', backref='event', lazy=True)
     city_id= Column(Integer, ForeignKey("city.id"))
     district_id = Column(Integer, ForeignKey("district.id"))
-    image_url = Column(String(255), nullable=True)
 
 
 class Ticket(Base):
+    name = Column(String(100), nullable=False)  # Thêm field name cho ticket
+    description = Column(String(255), nullable=True)  # Thêm field description cho ticket
     status=Column(Enum(TicketStatus), nullable=False, default=TicketStatus.Available)
     type =Column(Enum(TypeTicket), nullable=False, default=TypeTicket.Standard)
     price = Column(Float, nullable=False)
@@ -225,119 +228,128 @@ if __name__ == '__main__':
         #------Event-------
         event1 = Event(
             name="Concert Anh trai vượt ngàn chông gai",
-            time=time(17, 0),
-            date=date(2025, 9, 15),
-            description="Đêm nhạc sôi động với sự góp mặt của nhiều nghệ sĩ nổi tiếng, mang đến những giai điệu đầy cảm xúc.",
-            address="123 Nguyễn Kiệm",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Đỉnh nóc kịch trần bay phấp phới",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861619/1_pumfa1.png"
+            district_id=district1.id
         )
 
         event2 = Event(
             name="Concert Anh trai SAY HI",
-            time=time(18, 0),
-            date=date(2025, 10, 10),
-            description="Chương trình âm nhạc trẻ trung, hiện đại, nơi khán giả được giao lưu và hòa mình vào không khí náo nhiệt.",
-            address="123 Nguyễn Du",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Đỉnh nóc kịch trần bay phấp phới",
+            image="",
             event_type_id=event_type2.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861637/2_ccodpr.jpg"
+            district_id=district1.id
         )
 
         event3 = Event(
             name="Kí ức Hội An",
-            time=time(18, 10),
-            date=date(2025, 9, 23),
-            description="Chương trình tái hiện không gian văn hóa, nghệ thuật và đời sống cổ xưa đặc trưng của phố Hội.",
-            address="123 Lê Lợi",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Thể hiện vẽ đẹp cổ xưa của Hội An",
+            image="",
             event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861639/3_mbrfgz.jpg"
+            district_id=district1.id
         )
 
         event4 = Event(
             name="Conan movie 27",
-            time=time(14, 0),
-            date=date(2025, 9, 20),
-            description="Bộ phim hoạt hình trinh thám hấp dẫn với những pha hành động gay cấn và bí ẩn kịch tính.",
-            address="123 Nguyễn Chi Phương",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Kịnh tính, sống động",
+            image="",
             event_type_id=event_type3.id,
             organizer_id=1,
             city_id=city2.id,
-            district_id=district4.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861740/4_dfpm8r.jpg"
+            district_id=district4.id
         )
 
         event5 = Event(
             name="Xóm trọ lắm trò",
-            time=time(15, 0),
-            date=date(2025, 10, 10),
-            description="Vở kịch hài hước phản ánh cuộc sống đời thường, mang đến những tràng cười sảng khoái cho khán giả.",
-            address="123 Trần Phú",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Hài hước, vui nhộn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district3.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861749/5_mfkrih.jpg"
+            district_id=district3.id
         )
 
         event6 = Event(
-            name="Thứ 4 vui vẻ",
-            time=time(19, 0),
-            date=date(2025, 10, 1),
-            description="Chương trình giải trí tổng hợp, mang lại niềm vui và tiếng cười cho mọi lứa tuổi vào giữa tuần.",
-            address="14 Nguyễn Trãi",
+            name="Th��� 4 vui vẻ",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Ngày xửa ngày xưa",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district2.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861793/6_imhqme.jpg"
+            district_id=district2.id
         )
 
         event7 = Event(
             name="Doremon và Cuộc phiêu lưu vào thế giới trong tranh",
-            time=time(14, 30),
-            date=date(2025, 9, 10),
-            description="Bộ phim hoạt hình mới với hành trình kỳ thú của Doraemon, Nobita và nhóm bạn trong thế giới hội họa.",
-            address="số 2 Phan Đình Phùng",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861795/7_eae6nl.png"
+            district_id=district1.id
         )
 
         event8 = Event(
             name="Yêu nhầm bạn thân",
-            time=time(20, 0),
-            date=date(2025, 11, 1),
-            description="Bộ phim tình cảm lãng mạn, hài hước về tình bạn và tình yêu đầy trắc trở.",
-            address="54 Hoàng Văn Thụ",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861801/8_k9vu5t.jpg"
+            district_id=district1.id
         )
 
         event9 = Event(
             name="Triển lãm quốc tế thể thao và giải trí ngoài trời",
-            time=time(9, 0),
-            date=date(2025, 9, 10),
-            description="Sự kiện triển lãm quy mô lớn giới thiệu các sản phẩm, dịch vụ và hoạt động trong lĩnh vực thể thao, giải trí ngoài trời.",
-            address="34 Cộng Hòa",
+            startTime=time(17, 0),
+            endTime=time(17, 0),
+            startDate=date(2025, 9, 15),
+            endDate=date(2025, 9, 15),
+            description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            image="",
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861806/9_y9let1.jpg"
+            district_id=district1.id
         )
 
         db.session.add_all([event1, event2, event3, event4, event5, event6, event7, event8, event9])
@@ -352,7 +364,6 @@ if __name__ == '__main__':
         db.session.commit()
 
         # --- Ticket ---
-        #--event1---
         ticket1 = Ticket(
             status=TicketStatus.Available,
             type=TypeTicket.Standard,
@@ -360,6 +371,7 @@ if __name__ == '__main__':
             quantity=100,
             event_id=event1.id
         )
+
         ticket2 = Ticket(
             status=TicketStatus.Available,
             type=TypeTicket.VIP,
@@ -367,7 +379,6 @@ if __name__ == '__main__':
             quantity=50,
             event_id=event1.id
         )
-        #---event2---
         ticket3 = Ticket(
             status=TicketStatus.Available,
             type=TypeTicket.Standard,
@@ -375,6 +386,7 @@ if __name__ == '__main__':
             quantity=100,
             event_id=event2.id
         )
+
         ticket4 = Ticket(
             status=TicketStatus.Sold_out,
             type=TypeTicket.VIP,
@@ -382,125 +394,9 @@ if __name__ == '__main__':
             quantity=5,
             event_id=event2.id
         )
-        # Event 3
-        ticket5 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=300000,
-            quantity=150,
-            event_id=event3.id
-        )
-        ticket6 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=800000,
-            quantity=50,
-            event_id=event3.id
-        )
-
-        # Event 4
-        ticket7 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=100000,
-            quantity=200,
-            event_id=event4.id
-        )
-        ticket8 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=300000,
-            quantity=80,
-            event_id=event4.id
-        )
-
-        # Event 5
-        ticket9 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=200000,
-            quantity=120,
-            event_id=event5.id
-        )
-        ticket10 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=600000,
-            quantity=40,
-            event_id=event5.id
-        )
-
-        # Event 6
-        ticket11 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=150000,
-            quantity=100,
-            event_id=event6.id
-        )
-        ticket12 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=500000,
-            quantity=30,
-            event_id=event6.id
-        )
-
-        # Event 7
-        ticket13 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=120000,
-            quantity=150,
-            event_id=event7.id
-        )
-        ticket14 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=400000,
-            quantity=50,
-            event_id=event7.id
-        )
-
-        # Event 8
-        ticket15 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=80000,
-            quantity=200,
-            event_id=event8.id
-        )
-        ticket16 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=250000,
-            quantity=70,
-            event_id=event8.id
-        )
-
-        # Event 9
-        ticket17 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.Standard,
-            price=50000,
-            quantity=300,
-            event_id=event9.id
-        )
-        ticket18 = Ticket(
-            status=TicketStatus.Available,
-            type=TypeTicket.VIP,
-            price=200000,
-            quantity=100,
-            event_id=event9.id
-        )
-
-        # Add tất cả vào DB
-        db.session.add_all([
-            ticket5, ticket6, ticket7, ticket8, ticket9, ticket10,
-            ticket11, ticket12, ticket13, ticket14, ticket15, ticket16,
-            ticket17, ticket18
-        ])
+        db.session.add_all([ticket1, ticket2, ticket3, ticket4])
         db.session.commit()
+
 
         # --- Bill ---
         bill1 = Bill(

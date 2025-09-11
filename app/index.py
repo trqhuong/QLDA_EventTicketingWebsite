@@ -1,18 +1,14 @@
-from flask import render_template, redirect, request, flash, url_for
-from flask_dance.contrib.google import google
-from flask_login import login_user, logout_user, current_user
-
-
-
+from app import app, login_manager, db
+from app.models import User, Role, TypeTicket
 from app.dao.user_dao import add_customer, add_organizer, existence_check
-from app.models import User
-from flask_login import logout_user
+import cloudinary.uploader
+
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash, sessions, jsonify
 from flask.cli import load_dotenv
 
 from app import app, login_manager, db, utils
 from app.dao import user_dao, events_dao, ticket_dao
-from app.models import User, Role
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_dance.contrib.google import make_google_blueprint, google
 
@@ -225,6 +221,97 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@app.route("/organizer")
+def organizer():
+    cities = events_dao.get_all_locations()
+    event_types = events_dao.get_all_event_types()
+    return render_template("organizer.html", cities=cities, event_types=event_types)
+
+@app.route("/api/districts/<int:city_id>")
+def get_districts_by_city(city_id):
+    """API endpoint để lấy danh sách quận/huyện theo tỉnh/thành"""
+    districts = events_dao.get_districts_by_city(city_id)
+    return jsonify([{"id": district.id, "name": district.name} for district in districts])
+
+@app.route("/create_event", methods=['GET', 'POST'])
+def create_event_form():
+    if request.method == 'POST':
+        try:
+            # Lấy dữ liệu cơ bản từ form
+            event_name = request.form.get('event_name')
+            city_id = request.form.get('city_id')
+            district_id = request.form.get('district_id')
+            address = request.form.get('address')
+            event_type_id = request.form.get('event_type_id')
+            description = request.form.get('description')
+            image_url = request.files.get('image_url')
+            
+            # Lấy thông tin thời gian
+            start_date = request.form.get('start_date')
+            start_time = request.form.get('start_time')
+            end_date = request.form.get('end_date')
+            end_time = request.form.get('end_time')
+            
+            # Lấy thông tin tickets
+            ticket_names = request.form.getlist('ticket_name[]')
+            ticket_prices = request.form.getlist('ticket_price[]')
+            ticket_quantities = request.form.getlist('ticket_quantity[]')
+            ticket_descriptions = request.form.getlist('ticket_description[]')
+            ticket_types = request.form.getlist('ticket_type[]')  # Lấy ticket types từ form
+
+            # Validate dữ liệu
+            if not all([event_name, city_id, district_id, address, event_type_id, start_date, start_time, image_url]):
+                flash("Vui lòng điền đầy đủ thông tin bắt buộc!", "error")
+                return redirect(url_for('create_event_form'))
+
+            if not ticket_names or len(ticket_names) == 0:
+                flash("Vui lòng thêm ít nhất một loại vé!", "error")
+                return redirect(url_for('create_event_form'))
+
+            avatar_path = None
+            if image_url:
+                res = cloudinary.uploader.upload(image_url)
+                avatar_path = res['secure_url']
+            
+            # Tạo sự kiện mới
+            organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user, 'organizer') and current_user.organizer else 1
+            
+            new_event = events_dao.create_event_with_tickets(
+                name=event_name,
+                city_id=int(city_id),
+                district_id=int(district_id),
+                address=address,
+                event_type_id=int(event_type_id),
+                description=description,
+                image_url=avatar_path,
+                start_date=start_date,
+                start_time=start_time,
+                end_date=end_date if end_date else None,
+                end_time=end_time if end_time else None,
+                organizer_id=organizer_id,
+                ticket_data={
+                    'names': ticket_names,
+                    'prices': [float(price) for price in ticket_prices if price],
+                    'quantities': [int(qty) for qty in ticket_quantities if qty],
+                    'descriptions': ticket_descriptions,
+                    'types': ticket_types  # Thêm ticket types vào ticket_data
+                }
+            )
+            
+            flash("Tạo sự kiện thành công!", "success")
+            return redirect(url_for('organizer'))
+            
+        except ValueError as ve:
+            flash(f"Dữ liệu không hợp lệ: {str(ve)}", "error")
+        except Exception as e:
+            flash(f"Lỗi khi tạo sự kiện: {str(e)}", "error")
+        return redirect(url_for('create_event_form'))
+    
+    # GET request - hiển thị form
+    cities = events_dao.get_all_locations()
+    event_types = events_dao.get_all_event_types()
+    ticket_types = list(TypeTicket)
+    return render_template("create_event_new.html", cities=cities, event_types=event_types, ticket_types=ticket_types)
 
 @app.route('/detail_event')
 def detail_event():

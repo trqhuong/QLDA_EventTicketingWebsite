@@ -1,3 +1,167 @@
+
+{% extends 'organizer_layout/base.html' %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/organizer.css') }}"
+/>
+<div class="container mt-4">
+  <!-- Thông tin sự kiện -->
+  <h5 class="text-success fw-bold">Thông tin sự kiện</h5>
+
+  <div class="form-container d-flex p-3 mt-3">
+    <!-- Khung tải ảnh sự kiện -->
+    <div class="upload-box me-4">
+      <label for="eventImage" class="upload-label">
+        <span>📷<br />Tải hình ảnh sự kiện</span>
+        <input type="file" id="eventImage" hidden />
+      </label>
+    </div>
+
+    <!-- Form sự kiện -->
+    <form
+      method="POST"
+      action="{{ url_for('create_event_form') }}"
+      class="flex-grow-1"
+    >
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Tên sự kiện</label>
+        <div class="col-sm-9">
+          <input
+            type="text"
+            name="event_name"
+            class="form-control dark-input"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Tỉnh/Thành</label>
+        <div class="col-sm-9">
+          <select
+            name="city_id"
+            id="citySelect"
+            class="form-control dark-input"
+            required
+          >
+            <option value="">-- Chọn Tỉnh/Thành --</option>
+            {% for city in cities %}
+            <option value="{{ city.id }}">{{ city.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Quận/Huyện</label>
+        <div class="col-sm-9">
+          <select
+            name="district_id"
+            id="districtSelect"
+            class="form-control dark-input"
+            required
+          >
+            <option value="">-- Chọn Quận/Huyện --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white"
+          >Số nhà, tên đường</label
+        >
+        <div class="col-sm-9">
+          <input
+            type="text"
+            name="address"
+            class="form-control dark-input"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Thể loại</label>
+        <div class="col-sm-9">
+          <select name="event_type_id" class="form-select dark-input" required>
+            <option value="">--Chọn loại sự kiện--</option>
+            {% for event_type in event_types %}
+            <option value="{{ event_type.id }}">{{ event_type.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Ngày diễn ra</label>
+        <div class="col-sm-9">
+          <input
+            type="date"
+            name="event_date"
+            class="form-control dark-input"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Thời gian</label>
+        <div class="col-sm-9">
+          <input
+            type="time"
+            name="event_time"
+            class="form-control dark-input"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-3 col-form-label text-white">Mô tả sự kiện:</label>
+        <div class="col-sm-9">
+          <textarea
+            name="description"
+            rows="3"
+            class="form-control dark-input"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="text-end">
+        <button type="submit" class="btn btn-success px-4">Tạo sự kiện</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById("citySelect").addEventListener("change", function () {
+    const cityId = this.value;
+    const districtSelect = document.getElementById("districtSelect");
+
+    // Xóa các option cũ
+    districtSelect.innerHTML =
+      '<option value="">-- Chọn Quận/Huyện --</option>';
+
+    if (cityId) {
+      // Gọi API để lấy danh sách quận/huyện
+      fetch(`/api/districts/${cityId}`)
+        .then((response) => response.json())
+        .then((districts) => {
+          districts.forEach((district) => {
+            const option = document.createElement("option");
+            option.value = district.id;
+            option.textContent = district.name;
+            districtSelect.appendChild(option);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching districts:", error);
+        });
+    }
+  });
+</script>
+{% endblock %}
 {% extends 'organizer_layout/base.html' %}
 
 {% block content %}

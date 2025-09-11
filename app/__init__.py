@@ -1,4 +1,6 @@
 import os
+
+import cloudinary
 from dotenv import load_dotenv
 
 # Cho phép sử dụng HTTP (chỉ dùng khi phát triển local, không dùng cho production!)
@@ -40,3 +42,9 @@ google_bp = make_google_blueprint(
     redirect_to="callback"   # sau khi login xong sẽ về hàm index
 )
 app.register_blueprint(google_bp, url_prefix="/login")
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
