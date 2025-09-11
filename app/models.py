@@ -80,12 +80,10 @@ class Event(Base):
     image = Column(String(255), nullable=False)
     address = Column(String(255), nullable=True)
     event_type_id= Column(Integer, ForeignKey("event_type.id"))
-    event_type = relationship("EventType", backref="events", lazy=True)
     organizer_id= Column(Integer, ForeignKey("organizer.id"))
     ticket=relationship('Ticket', backref='event', lazy=True)
     city_id= Column(Integer, ForeignKey("city.id"))
     district_id = Column(Integer, ForeignKey("district.id"))
-    image_url = Column(String(255), nullable=True)
 
 
 class Ticket(Base):
@@ -239,8 +237,7 @@ if __name__ == '__main__':
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861619/1_pumfa1.png"
+            district_id=district1.id
         )
 
         event2 = Event(
@@ -254,8 +251,7 @@ if __name__ == '__main__':
             event_type_id=event_type2.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861637/2_ccodpr.jpg"
+            district_id=district1.id
         )
 
         event3 = Event(
@@ -269,8 +265,7 @@ if __name__ == '__main__':
             event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861639/3_mbrfgz.jpg"
+            district_id=district1.id
         )
 
         event4 = Event(
@@ -284,8 +279,7 @@ if __name__ == '__main__':
             event_type_id=event_type3.id,
             organizer_id=1,
             city_id=city2.id,
-            district_id=district4.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861740/4_dfpm8r.jpg"
+            district_id=district4.id
         )
 
         event5 = Event(
@@ -299,8 +293,7 @@ if __name__ == '__main__':
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district3.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861749/5_mfkrih.jpg"
+            district_id=district3.id
         )
 
         event6 = Event(
@@ -314,8 +307,7 @@ if __name__ == '__main__':
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district2.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861793/6_imhqme.jpg"
+            district_id=district2.id
         )
 
         event7 = Event(
@@ -329,8 +321,7 @@ if __name__ == '__main__':
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861795/7_eae6nl.png"
+            district_id=district1.id
         )
 
         event8 = Event(
@@ -344,8 +335,7 @@ if __name__ == '__main__':
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861801/8_k9vu5t.jpg"
+            district_id=district1.id
         )
 
         event9 = Event(
@@ -359,8 +349,7 @@ if __name__ == '__main__':
             event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id,
-            image_url = "https://res.cloudinary.com/dfi68mgij/image/upload/v1756861806/9_y9let1.jpg"
+            district_id=district1.id
         )
 
         db.session.add_all([event1, event2, event3, event4, event5, event6, event7, event8, event9])
