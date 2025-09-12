@@ -49,16 +49,16 @@
     </div>
 
     <div class="image-section">
-                <img src="{{ event.image_url}}" alt="Ảnh sự kiện">
+        <img src="{{ event.image_url}}" alt="Ảnh sự kiện">
     </div>
 </div>
 
-<div class="ticket-info" id="tickets-data" data-tickets='{{ tickets_dict | tojson }}' >
+<div class="ticket-info" id="tickets-data" data-tickets='{{ tickets_dict | tojson }}'>
     <h3>Thông tin vé</h3>
     <p>Thời gian: 15/08/2025</p>
 
     {% for tick in tickets %}
-    <div class="row p-1 mt-1" >
+    <div class="row p-1 mt-1">
         <div class="col-4">
             <span>{{tick.type.value}}</span>
             <span>Còn lại: {{ tick.quantity }}</span>
@@ -68,45 +68,24 @@
         </div>
 
         <div class="quantity col-4">
-            <button id="removeBtn" class="decrease" onclick="remove_from_cart( `{{tick.id}}` )">-</button>
+            <button id="removeBtn" class="decrease" onclick="handleRemove('{{tick.id}}', '{{tick.quantity}}')">-</button>
+            <input id="quantity-{{tick.id}}" type="text" value="0"  readonly >
 
-            {% if tick.id|string in cart %}
-            <input id="quantity-{{ tick.id }}" type="text" value="{{ cart[tick.id|string]['quantity'] }}" readonly>
-            {% else %}
-            <input id="quantity-{{tick.id}}" type="text" value="0" readonly>
-            {% endif %}
-
-            <button class="increase"
-                    onclick="add_to_cart( '{{tick.id}}', '{{event.name}}', '{{tick.type.value}}', {{tick.price}} )">+
+            <button class="increase" onclick="handleAdd('{{tick.id}}', '{{tick.quantity}}', '{{tick.type.value}}', '{{tick.price}}' )">+
             </button>
         </div>
     </div>
     {% endfor %}
 
 
-    <!--    <div class="ticket-row soldout">-->
-    <!--        <span>Vé Thường</span>-->
-    <!--        <span>Giá vé: 200.000 VND</span>-->
-    <!--        <span class="soldout-badge">Hết vé</span>-->
-    <!--    </div>-->
-
-    <!--    <div class="ticket-row">-->
-    <!--        <span>Vé Student</span>-->
-    <!--        <span>Giá vé: 100.000 VND</span>-->
-    <!--        <div class="quantity">-->
-    <!--            <button class="decrease">-</button>-->
-    <!--            <input type="text" value="0" readonly>-->
-    <!--            <button class="increase">+</button>-->
-    <!--        </div>-->
-    <!--    </div>-->
-
     <div class="d-flex flex-column ">
-        <span id="total_ticket"> Tổng vé: {{cart_info.total_ticket}}</span>
-        <span id="total-price">Tạm tính: {{ cart_info.total }} VNĐ </span>
+        <span id="total_ticket">Tổng số vé: {{cart_info.total_ticket}} </span>
+        <span id="total-price">Tạm tính: {{cart_info.total}}</span>
     </div>
-    {% if not cart %}
-        <button id="continueBtn" class="checkout-btn" onclick="handleOnclick( {{ event_id }} )" disabled>Tiếp tục thanh toán</button>
-    {% endif %}
+
+    <button id="continueBtn" class="checkout-btn" data-event-id="{{ event_id }}" type="button"
+    >Tiếp tục thanh toán
+    </button>
 
 
 </div>

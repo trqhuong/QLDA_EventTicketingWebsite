@@ -21,7 +21,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-               Thời gian: {{ event_details.time }}
+                Thời gian: {{ event_details.time }}
             </div>
             <div class="info-row mb-3">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,7 +36,7 @@
                     <path d="M15.864 15.364L9.5 21.7279L3.13604 15.364C-0.37868 11.8492 -0.37868 6.15076 3.13604 2.63604C6.65076 -0.87868 12.3492 -0.87868 15.864 2.63604C19.3787 6.15076 19.3787 11.8492 15.864 15.364ZM9.5 13C11.7091 13 13.5 11.2091 13.5 9C13.5 6.79086 11.7091 5 9.5 5C7.29086 5 5.5 6.79086 5.5 9C5.5 11.2091 7.29086 13 9.5 13ZM9.5 11C8.3954 11 7.5 10.1046 7.5 9C7.5 7.89543 8.3954 7 9.5 7C10.6046 7 11.5 7.89543 11.5 9C11.5 10.1046 10.6046 11 9.5 11Z"
                           fill="white"/>
                 </svg>
-                 {{ event_details.location.district }} - {{ event_details.location.city }}
+                {{ event_details.location.district }} - {{ event_details.location.city }}
             </div>
         </div>
 
@@ -52,30 +52,31 @@
 
                 </div>
                 {% for c in cart.values() %}
-                 <div class="row">
+                <div class="row">
                     <span>{{ c['type'] }}</span>
                     <span>{{ c['quantity'] }}</span>
                 </div>
                 {% endfor %}
-<!--                <div class="row">-->
-<!--                    <span class="label">Giá vé</span>-->
-<!--                    <span>0 VND</span>-->
-<!--                </div>-->
-<!--                <div class="row">-->
-<!--                    <span class="label">Thành tiền</span>-->
-<!--                    <span>000 VND</span>-->
-<!--                </div>-->
+                <!--                <div class="row">-->
+                <!--                    <span class="label">Giá vé</span>-->
+                <!--                    <span>0 VND</span>-->
+                <!--                </div>-->
+                <!--                <div class="row">-->
+                <!--                    <span class="label">Thành tiền</span>-->
+                <!--                    <span>000 VND</span>-->
+                <!--                </div>-->
             </div>
             <div class="total">
                 <strong>Tổng tiền:</strong>{{ total }} VND
             </div>
-            {% if current_user.is_authenticated %}
-            <button class="btn btn-pay">Thanh toán</button>
-            {% else %}
-            <a href="#" class="btn-pay">
-                Thanh toán
-            </a>
-            {% endif %}
+
+
+            <form action="/pay_via_VNPAY" method="post">
+                <input type="hidden" name="eventId" value="{{event_details.event_id}}">
+                <input type="hidden" name="amount" value="{{ total }}">
+                <button class="btn btn-info" type="submit">Thanh toán</button>
+            </form>
+
         </div>
     </div>
 

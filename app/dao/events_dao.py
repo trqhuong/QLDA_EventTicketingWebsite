@@ -157,6 +157,7 @@ def create_event_with_tickets(name, city_id, district_id, address, event_type_id
 def get_details_by_event_id(event_id = None):
 
     event = Event.query.get(event_id)
+    event_type = EventType.query.get(event.event_type_id)
     if(not event):
         return None
 
@@ -170,8 +171,8 @@ def get_details_by_event_id(event_id = None):
         'time': event.time.strftime('%H:%M'),
         'date': event.date.strftime('%d-%m-%Y'),
         'description': event.description,
-        'type': event.event_type.name,
+        'type': event_type.name,
         'location': location_info,
-        'image_url' : event.image_url
+        'image_url' : event.image
     }
-    return event_details;
+    return event_details
