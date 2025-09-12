@@ -9,9 +9,9 @@ from app.models import User
 from flask_login import logout_user
 from flask import Flask, render_template, request, redirect, url_for, session, flash, sessions, jsonify
 from flask.cli import load_dotenv
-
-from app import app, login_manager, db, utils
-from app.dao import user_dao, events_dao, ticket_dao
+from datetime import datetime
+from app import app, login_manager, db, utils, VNPAY_CONFIG
+from app.dao import user_dao, events_dao, ticket_dao, vnpay_dao, bill_dao
 from app.models import User, Role
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -224,8 +224,6 @@ def callback():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
-
 @app.route('/detail_event')
 def detail_event():
     cart = session.get(app.config['CART_KEY'], {})
@@ -252,35 +250,34 @@ def detail_event():
         for t in tickets
     ]
     return render_template('detail_event.html', event=event_details, event_id=event_id, tickets=tickets,
-                           cart_info=cart_info,cart = cart,tickets_dict = tickets_dict)
+                           tickets_dict = tickets_dict,cart_info = cart_info)
 
 
 @app.route("/api/cart", methods=['post'])
+
 def add_to_cart():
     key = app.config['CART_KEY']
 
     data = request.json
-    if not data or 'ticket_id' not in data or 'event_name' not in data or 'type' not in data or 'price' not in data:
+    if not data or 'ticket_id' not in data  or 'type' not in data or 'price' not in data:
         return jsonify({'error': 'Missing data in request'}), 400
     id = str(data['ticket_id'])
-    event_name = str(data['event_name'])
     type = str(data['type'])
-    price = data['price']
+    price = float(data['price'])
     cart = session[key] if key in session else {}
     if id in cart:
         cart[id]['quantity'] += 1
     else:
         cart[id] = {
             "ticket_id": id,
-            "event_name": event_name,
             "type": type,
             "price": price,
             "quantity": 1
         }
 
-
     session[key] = cart
     return jsonify(utils.cart_stats(cart))
+
 @app.route("/api/cart", methods=['put'])
 def remove_from_cart():
     key = app.config['CART_KEY']
@@ -308,8 +305,11 @@ def remove_from_cart():
 
     return jsonify(utils.cart_stats(cart))
 
+login_manager.login_view = '/login'
 @app.route('/book_ticket')
+@login_required
 def book_ticket():
+
     key = app.config['CART_KEY']
 
     cart = session.get(key, None)
@@ -322,6 +322,61 @@ def book_ticket():
 
     return render_template('book_ticket.html',cart = cart,total = total,event_details=event_details)
 
+@app.route('/pay_via_VNPAY', methods = ["POST"])
+def pay():
+    if (request.method== 'POST'):
+
+        event_id = request.form.get("eventId")
+        amount_str  = request.form.get("amount")
+        amount = float(amount_str)
+        vnp = vnpay_dao.vnpay()
+        vnp.requestData['vnp_Version'] = '2.1.0'
+        # vnp.requestData['vnp_BankCode'] = 'NCB'
+        vnp.requestData['vnp_Command'] = 'pay'
+        # vnp.requestData['vnp_CardType'] = 'ATM'
+        vnp.requestData['vnp_BankCode'] = 'NCB'
+        vnp.requestData['vnp_TmnCode'] = VNPAY_CONFIG['vnp_TmnCode']
+        vnp.requestData['vnp_Amount'] =  str(int(amount * 100))
+        vnp.requestData['vnp_CurrCode'] = 'VND'
+        vnp.requestData['vnp_TxnRef'] = f"{event_id}{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        vnp.requestData['vnp_OrderInfo'] = 'Thanh toan'
+        vnp.requestData['vnp_OrderType'] = 'other'
+        vnp.requestData['vnp_Locale'] = 'vn'
+        vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+        vnp.requestData['vnp_IpAddr'] = "127.0.0.1"
+        vnp.requestData['vnp_ReturnUrl'] = url_for('vnpay_return', _external=True)
+
+        # Lấy URL thanh toán
+        vnp_payment_url = vnp.get_payment_url(
+            VNPAY_CONFIG['vnp_Url'],
+            VNPAY_CONFIG['vnp_HashSecret']
+        )
+
+        print("Redirecting to VNPAY:", vnp_payment_url)
+
+        return redirect(vnp_payment_url)
+
+
+@app.route('/vnpay_return')
+def vnpay_return():
+    is_valid = vnpay_dao.verify_return(request.args, VNPAY_CONFIG['vnp_HashSecret'])
+    key = app.config['CART_KEY']
+
+    cart = session.get(key, None)
+    if not is_valid:
+        return "Sai chữ ký, giao dịch không hợp lệ", 400
+
+    vnp_response_code = request.args.get("vnp_ResponseCode")
+    txn_status = request.args.get("vnp_TransactionStatus")
+
+    if vnp_response_code == "00" and txn_status == "00":
+        bill = bill_dao.create_bill_bill_detail(current_user,cart)
+        utils.send_invoice(current_user.email,bill,cart)
+        session.pop(key, None)
+        flash("Thanh toán thành công!", "success")
+        return redirect(url_for("index"))
+    else:
+        return f"Giao dịch thất bại. Mã lỗi: {vnp_response_code}, Trạng thái: {txn_status}"
 
 @app.route("/organizer")
 def organizer_header():
