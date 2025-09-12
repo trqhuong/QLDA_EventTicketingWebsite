@@ -1,47 +1,34 @@
-function update_cart_ui(cartInfo,id,type) {
-    // Cập nhật tổng tiền
-
+function update_cart_ui(cartInfo) {
     const totalPriceElement = document.getElementById('total-price');
     const continueBtn = document.getElementById('continueBtn');
-//    if(continueBtn) {
-//        console.log("has btn continue");
-//    }
     if (totalPriceElement) {
         totalPriceElement.innerText = "Tạm tính: " + cartInfo.total;
     }
-    // Cập nhật tổng số vé cho input
-    if(type == "ADD"){
-        const totalTicketsElementInput = document.getElementById(`quantity-${id}`);
-        if (totalTicketsElementInput) {
-            let currentQuantity = parseInt(totalTicketsElementInput.value);
-            if(isNaN(currentQuantity)){
-                currentQuantity = 0;
-            }
-            totalTicketsElementInput.value = currentQuantity + 1;
-
-        }
-    } else if(type == "REMOVE"){
-        const totalTicketsElementInput = document.getElementById(`quantity-${id}`);
-        if (totalTicketsElementInput) {
-            let currentQuantity = parseInt(totalTicketsElementInput.value);
-            totalTicketsElementInput.value = currentQuantity - 1;
-        }
-    }
     document.getElementById('total_ticket').innerText = "Tổng số vé: " + cartInfo.total_ticket;
-    if(parseInt(cartInfo.total_ticket) === 0){
-        continueBtn.disabled = true;
-    } else {
-        continueBtn.disabled = false;
-    }
-}
+    continueBtn.replaceWith(continueBtn.cloneNode(true));
+    const newBtn = document.getElementById('continueBtn');
 
-function add_to_cart(id, event_name, type, price) {
+    newBtn.addEventListener("click", () => {
+        const eventId = newBtn.dataset.eventId;
+        const totalTicket = cartInfo.total_ticket;
+        handleContinuePayment(eventId, totalTicket);
+    });
+}
+function handleContinuePayment (eventId, total_ticket) {
+
+    if(total_ticket == 0){
+        alert("Vui lòng chọn vé để tiếp tục");
+        return;
+    }
+
+    window.location.href = `http://127.0.0.1:5000/book_ticket?event_id=${eventId}`;
+}
+function add_to_cart(id, type, price) {
     // axios fetch
     fetch('/api/cart',{
         method : 'post',
         body: JSON.stringify({
             "ticket_id": id,
-            "event_name" : event_name,
             "type" : type,
             "price" : price
         }),
@@ -60,12 +47,9 @@ function add_to_cart(id, event_name, type, price) {
         if(data.error){
             console.log("Server error",data.error);
         } else {
-
             console.info("Add ticket successfull");
-            update_cart_ui(data,id,'ADD');
+            update_cart_ui(data);
         }
-
-
     })
     .catch(error => {
         // Bắt các lỗi xảy ra trong quá trình fetch hoặc khi xử lý response
@@ -104,12 +88,9 @@ function remove_from_cart(id) {
         if(data.error){
             console.log("Server error",data.error);
         } else {
-
             console.info("Remove ticket successfull");
-            update_cart_ui(data,id,'REMOVE');
+            update_cart_ui(data);
         }
-
-
     })
     .catch(error => {
         // Bắt lỗi được ném ra từ khối .then() ở trên
@@ -119,39 +100,35 @@ function remove_from_cart(id) {
     });
 }
 
-function handleOnclick (eventId) {
 
+function handleAdd(ticketId,quantity,type, price) {
+    let inputElement = document.getElementById(`quantity-${ticketId}`);
+    if(inputElement) {
+        let currentQuantity = parseInt(inputElement.value);
 
-    const ticketsEL = document.getElementById('tickets-data');
-
-    const tickets = JSON.parse(ticketsEL.dataset.tickets);
-
-
-
-    let valid = true;
-    let message = [];
-
-    for(let t of tickets) {
-        console.log(t.id);
-        let inputEL = document.getElementById(`quantity-${t.id}`);
-        if(inputEL){
-            console.log("has input element");
-        } else {
-            console.log(`quantity-${t.id}`);
+        currentQuantity += 1;
+        if(currentQuantity > parseInt(quantity)){
+            alert("Vé đã hết hoặc đặt quá số lượng");
+            return;
         }
-        let cartQuantity = parseInt(inputEL.value) || 0;
-        if(cartQuantity){
-            console.log(`Cart quantity: ${cartQuantity} `);
-        }
-        if(cartQuantity > t.quantity){
-            valid = false;
-            message.push(`Vé ${t.type} vượt quá số lượng còn lại ${t.quantity}`);
-        }
-    }
-    if (!valid) {
-        alert(message.join("\n"));
-        return;
+        inputElement.value = currentQuantity;
+        add_to_cart(ticketId, type, price);
+        console.log("Current: ", currentQuantity);
     }
 
-    window.location.href = `http://127.0.0.1:5000/book_ticket?event_id=${eventId}`;
+}
+
+function handleRemove(ticketId, quantity) {
+    let inputElement = document.getElementById(`quantity-${ticketId}`);
+    if(inputElement) {
+        let currentQuantity = parseInt(inputElement.value);
+        currentQuantity -= 1;
+        if(currentQuantity < 0){
+            alert("Bạn không thể giảm thêm được nữa!!");
+            return;
+        }
+        inputElement.value = currentQuantity;
+        remove_from_cart(ticketId)
+    }
+
 }
