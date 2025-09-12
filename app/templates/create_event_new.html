@@ -184,11 +184,10 @@
             </label>
             <input
               type="date"
-              name="start_date"
+              name="date"
               class="form-control dark-input"
               required
             />
-            <small class="text-muted">Ngày bắt đầu sự kiện</small>
           </div>
         </div>
         <div class="col-md-6">
@@ -198,39 +197,14 @@
             </label>
             <input
               type="time"
-              name="start_time"
+              name="time"
               class="form-control dark-input"
               required
             />
-            <small class="text-muted">Giờ bắt đầu sự kiện</small>
           </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Ngày kết thúc</label>
-            <input
-              type="date"
-              name="end_date"
-              class="form-control dark-input"
-            />
-            <small class="text-muted">Để trống nếu sự kiện trong 1 ngày</small>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Giờ kết thúc</label>
-            <input
-              type="time"
-              name="end_time"
-              class="form-control dark-input"
-            />
-            <small class="text-muted">Giờ dự kiến kết thúc</small>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Thông tin vé -->
@@ -276,21 +250,11 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Mô tả loại vé</label>
-            <textarea
-              name="ticket_description[]"
-              rows="2"
-              class="form-control dark-input"
-              placeholder="Mô tả quyền lợi của loại vé này..."
-            ></textarea>
-          </div>
-
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">
-                  <span class="text-danger">*</span> Loại vé (Enum)
+                  <span class="text-danger">*</span> Loại vé
                 </label>
                 <select name="ticket_type[]" class="form-select dark-input" required>
                   <option value="">--Chọn loại vé--</option>
@@ -310,7 +274,7 @@
       </button>
     </div>
 
-    <div class="text-end mt-4">
+    <div class="text-end mt-4 mb-5">
       <a href="{{ url_for('organizer') }}" class="btn btn-secondary me-2">
         <i class="bi bi-arrow-left me-1"></i>Hủy
       </a>
@@ -399,16 +363,6 @@
               />
             </div>
           </div>
-        </div>
-        
-        <div class="mb-3">
-          <label class="form-label">Mô tả loại vé</label>
-          <textarea
-            name="ticket_description[]"
-            rows="2"
-            class="form-control dark-input"
-            placeholder="Mô tả quyền lợi của loại vé này..."
-          ></textarea>
         </div>
 
         <div class="row">
