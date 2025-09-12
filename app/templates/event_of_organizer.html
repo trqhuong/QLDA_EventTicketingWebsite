@@ -1,0 +1,272 @@
+{% extends 'organizer_layout/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Sự kiện của tôi</h2>
+                <a href="{{ url_for('create_event_form') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tạo sự kiện mới
+                </a>
+            </div>
+
+            <!-- Bộ lọc trạng thái -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">
+                                <i class="fas fa-filter text-primary me-2"></i>Lọc theo trạng thái
+                            </h6>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('event_of_organizer') }}"
+                                   class="btn {{ 'btn-primary' if not current_status else 'btn-outline-primary' }}">
+                                    <i class="fas fa-list me-1"></i>Tất cả
+                                </a>
+                                <a href="{{ url_for('event_of_organizer', status='upcoming') }}"
+                                   class="btn {{ 'btn-success' if current_status == 'upcoming' else 'btn-outline-success' }}">
+                                    <i class="fas fa-clock me-1"></i>Sắp diễn ra
+                                </a>
+                                <a href="{{ url_for('event_of_organizer', status='ongoing') }}"
+                                   class="btn {{ 'btn-warning' if current_status == 'ongoing' else 'btn-outline-warning' }}">
+                                    <i class="fas fa-play me-1"></i>Đang diễn ra
+                                </a>
+                                <a href="{{ url_for('event_of_organizer', status='completed') }}"
+                                   class="btn {{ 'btn-secondary' if current_status == 'completed' else 'btn-outline-secondary' }}">
+                                    <i class="fas fa-check me-1"></i>Đã kết thúc
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if events %}
+                <div class="row">
+                    {% for event in events %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow">
+                            <!-- Event Image -->
+                            <div class="card-img-top" style="height: 200px; overflow: hidden;">
+                                {% if event.image %}
+                                    <img src="{{ event.image }}" class="img-fluid w-100 h-100" style="object-fit: cover;" alt="{{ event.name }}">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center h-100">
+                                        <i class="fas fa-image fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+                                <!-- Event Name -->
+                                <h5 class="card-title text-truncate" title="{{ event.name }}">{{ event.name }}</h5>
+
+                                <!-- Event Description -->
+                                {% if event.description %}
+                                    <p class="card-text text-muted small">{{ event.description[:80] }}{% if event.description|length > 80 %}...{% endif %}</p>
+                                {% endif %}
+
+                                <!-- Event Details -->
+                                <div class="event-details mb-3">
+                                    <!-- Date & Time -->
+                                    <div class="mb-2">
+                                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                        <strong>Ngày:</strong> {{ event.date.strftime('%d/%m/%Y') }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-clock text-primary me-2"></i>
+                                        <strong>Giờ:</strong> {{ event.time.strftime('%H:%M') }}
+                                    </div>
+
+                                    <!-- Location -->
+                                    <div class="mb-2">
+                                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                        <strong>Địa điểm:</strong> {{ event.address }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-city text-primary me-2"></i>
+                                        <strong>Thành phố:</strong> {{ event.city.name if event.city else 'Chưa có thông tin' }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-map text-primary me-2"></i>
+                                        <strong>Quận/Huyện:</strong> {{ event.district.name if event.district else 'Chưa có thông tin' }}
+                                    </div>
+
+                                    <!-- Event Type -->
+                                    <div class="mb-2">
+                                        <i class="fas fa-tag text-primary me-2"></i>
+                                        <strong>Loại sự kiện:</strong> {{ event.event_type.name if event.event_type else 'Chưa phân loại' }}
+                                    </div>
+
+                                    <!-- Tickets Info -->
+                                    {% if event.ticket %}
+                                        <div class="mb-2">
+                                            <i class="fas fa-ticket-alt text-primary me-2"></i>
+                                            <strong>Số loại vé:</strong> {{ event.ticket|length }}
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                Giá từ: {{ "{:,.0f}".format(event.ticket|map(attribute='price')|min) }} VNĐ
+                                                - {{ "{:,.0f}".format(event.ticket|map(attribute='price')|max) }} VNĐ
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Event Status Badge -->
+                            <div class="position-absolute top-0 end-0 m-2">
+                                {% if event.date > today %}
+                                    <span class="badge bg-success">Sắp diễn ra</span>
+                                {% elif event.date == today %}
+                                    <span class="badge bg-warning">Đang diễn ra</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Đã kết thúc</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if pagination.pages > 1 %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous Page -->
+                        {% if pagination.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('event_of_organizer', page=pagination.prev_num, status=current_status) }}">
+                                    <i class="fas fa-chevron-left"></i> Trước
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i> Trước</span>
+                            </li>
+                        {% endif %}
+
+                        <!-- Page Numbers -->
+                        {% for page_num in pagination.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != pagination.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('event_of_organizer', page=page_num, status=current_status) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Next Page -->
+                        {% if pagination.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('event_of_organizer', page=pagination.next_num, status=current_status) }}">
+                                    Sau <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Sau <i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <!-- Page Info -->
+                    <div class="text-center text-muted mt-2">
+                        Hiển thị {{ pagination.per_page * (pagination.page - 1) + 1 }} -
+                        {{ pagination.per_page * pagination.page if pagination.page < pagination.pages else pagination.total }}
+                        trong tổng số {{ pagination.total }} sự kiện
+                        {% if current_status %}
+                            - Lọc:
+                            {% if current_status == 'upcoming' %}Sắp diễn ra
+                            {% elif current_status == 'ongoing' %}Đang diễn ra
+                            {% elif current_status == 'completed' %}Đã kết thúc
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- No Events -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-calendar-times fa-5x text-muted"></i>
+                    </div>
+                    {% if current_status %}
+                        <h4 class="text-muted">
+                            Không có sự kiện nào
+                            {% if current_status == 'upcoming' %}sắp diễn ra
+                            {% elif current_status == 'ongoing' %}đang diễn ra
+                            {% elif current_status == 'completed' %}đã kết thúc
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-4">Thử lọc theo trạng thái khác hoặc tạo sự kiện mới.</p>
+                        <div>
+                            <a href="{{ url_for('event_of_organizer') }}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-list"></i> Xem tất cả
+                            </a>
+                            <a href="{{ url_for('create_event_form') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Tạo sự kiện mới
+                            </a>
+                        </div>
+                    {% else %}
+                        <h4 class="text-muted">Chưa có sự kiện nào</h4>
+                        <p class="text-muted mb-4">Bạn chưa tạo sự kiện nào. Hãy tạo sự kiện đầu tiên của mình!</p>
+                        <a href="{{ url_for('create_event_form') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Tạo sự kiện đầu tiên
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s ease-in-out;
+    border: none;
+    border-radius: 10px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.event-details {
+    font-size: 0.9rem;
+}
+
+.event-details i {
+    width: 20px;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+.btn-group .btn {
+    font-size: 0.8rem;
+}
+
+.pagination .page-link {
+    color: #007bff;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+</style>
+{% endblock %}
