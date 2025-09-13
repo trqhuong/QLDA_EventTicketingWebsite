@@ -26,7 +26,21 @@ def index():
     page = request.args.get("page", 1, type=int)
     pagination = events_dao.get_all_events(page=page, per_page=3)
     events = pagination.items
-    return render_template("index.html", artists=artists, cities=cities, events=events, pagination=pagination, event_types=event_types)
+
+    special_events_pagination = events_dao.get_all_events(page=1, per_page=9)
+    special_events = special_events_pagination.items  # list các event
+    # nhóm 3 sự kiện 1 slide
+    special_event_groups = [special_events[i:i + 3] for i in range(0, len(special_events), 3)]
+
+    return render_template(
+        "index.html",
+        artists=artists,
+        cities=cities,
+        events=events,
+        pagination=pagination,
+        event_types=event_types,
+        special_event_groups=special_event_groups
+    )
 
 @app.route('/search')
 def search():
@@ -494,15 +508,6 @@ def vnpay_return():
         return redirect(url_for("index"))
     else:
         return f"Giao dịch thất bại. Mã lỗi: {vnp_response_code}, Trạng thái: {txn_status}"
-
-@app.route("/organizer")
-def organizer_header():
-    return render_template("organizer.html")
-
-
-@app.route("/create_event")
-def create_event():
-    return render_template("create_event.html")
 
 
 @app.route("/my_event")

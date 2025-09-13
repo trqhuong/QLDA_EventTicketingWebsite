@@ -1,7 +1,9 @@
 import unittest
+from datetime import date
+
 from app import app, db
-from app.models import User, Organizer, Role, ReviewStatus
-from app.dao.events_dao import get_all_events,get_details_by_event_id
+from app.models import User, Organizer, Role, ReviewStatus, Ticket, TypeTicket, TicketStatus
+from app.dao.events_dao import get_all_events,get_details_by_event_id, create_event_with_tickets, get_events_by_organizer
 
 
 class Event(unittest.TestCase):
@@ -55,6 +57,107 @@ class Event(unittest.TestCase):
         self.assertIn("type", event_details)
         self.assertIn("location", event_details)
 
-        pass
+    def test_create_event_with_tickets_success(self):
+        # Chuẩn bị dữ liệu ticket
+        ticket_data = {
+            'prices': [100000, 200000],
+            'quantities': [50, 30],
+            'descriptions': ['Vé thường', 'Vé VIP'],
+            'types': ['Standard', 'VIP']
+        }
+
+        new_event = create_event_with_tickets(
+            name='Concert Test',
+            city_id=1,
+            district_id=1,
+            address='123 Test Street',
+            event_type_id=1,
+            description='Mô tả sự kiện test',
+            image_url='https://res.cloudinary.com/dfi68mgij/image/upload/v1756861793/6_imhqme.jpg',
+            date='2025-09-13',
+            time='18:00',
+            organizer_id=1,
+            ticket_data=ticket_data
+        )
+
+        # Kiểm tra event đã tạo
+        self.assertIsNotNone(new_event.id)
+        self.assertEqual(new_event.name, 'Concert Test')
+
+        # Kiểm tra tickets đã tạo
+        tickets = Ticket.query.filter_by(event_id=new_event.id).all()
+        self.assertEqual(len(tickets), 2)
+
+        # Kiểm tra ticket đầu tiên
+        t1 = tickets[0]
+        self.assertEqual(t1.price, 100000)
+        self.assertEqual(t1.quantity, 50)
+        self.assertEqual(t1.type, TypeTicket.Standard)
+        self.assertEqual(t1.status, TicketStatus.Available)
+
+        # Kiểm tra ticket thứ hai
+        t2 = tickets[1]
+        self.assertEqual(t2.type, TypeTicket.VIP)
+        self.assertEqual(t2.price, 200000)
+
+    def test_create_event_with_tickets_invalid_date(self):
+        # Truyền sai format date => Exception
+        ticket_data = {
+            'prices': [100000],
+            'quantities': [10],
+            'descriptions': ['Vé thường'],
+            'types': ['Standard']
+        }
+
+        with self.assertRaises(Exception):
+            create_event_with_tickets(
+                name='Concert Error',
+                city_id=1,
+                district_id=1,
+                address='123 Test Street',
+                event_type_id=1,
+                description='Mô tả sự kiện test',
+                image_url='https://res.cloudinary.com/dfi68mgij/image/upload/v1756861793/6_imhqme.jpg',
+                date='13-09-2025',  # sai format
+                time='18:00',
+                organizer_id=1,
+                ticket_data=ticket_data
+            )
+
+    def test_get_events_by_organizer_all(self):
+            organizer = Organizer.query.first()
+            pagination = get_events_by_organizer(organizer.id, page=1, per_page=5)
+
+            # trả về phải là Pagination object
+            assert hasattr(pagination, 'items')
+            events = pagination.items
+
+            assert all(e.organizer_id == organizer.id for e in events)
+#Test lấy sự kiện sắp tới
+    def test_get_events_by_organizer_upcoming(self):
+            organizer = Organizer.query.first()
+            pagination = get_events_by_organizer(organizer.id, page=1, per_page=5, status_filter='upcoming')
+            events = pagination.items
+
+            today = date.today()
+            assert all(e.date > today for e in events)
+#Test lấy sự kiện diễn ra
+    def test_get_events_by_organizer_ongoing(seft):
+            organizer = Organizer.query.first()
+            pagination = get_events_by_organizer(organizer.id, status_filter='ongoing')
+            events = pagination.items
+
+            today = date.today()
+            assert all(e.date == today for e in events)
+#Test sự kiện đã qua
+    def test_get_events_by_organizer_completed(seft):
+            organizer = Organizer.query.first()
+            pagination = get_events_by_organizer(organizer.id, status_filter='completed')
+            events = pagination.items
+
+            today = date.today()
+            assert all(e.date < today for e in events)
+
+
 if __name__=="__main__":
     unittest.main()
