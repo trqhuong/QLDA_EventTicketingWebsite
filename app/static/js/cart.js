@@ -1,8 +1,11 @@
+function formatVND(amount) {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " ₫";
+}
 function update_cart_ui(cartInfo) {
     const totalPriceElement = document.getElementById('total-price');
     const continueBtn = document.getElementById('continueBtn');
     if (totalPriceElement) {
-        totalPriceElement.innerText = "Tạm tính: " + cartInfo.total;
+        totalPriceElement.innerText = "Tạm tính: " + formatVND(cartInfo.total);
     }
     document.getElementById('total_ticket').innerText = "Tổng số vé: " + cartInfo.total_ticket;
     continueBtn.replaceWith(continueBtn.cloneNode(true));

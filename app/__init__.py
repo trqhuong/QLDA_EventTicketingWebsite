@@ -15,6 +15,14 @@ import os
 
 app = Flask(__name__)
 
+@app.template_filter('vnd')
+def vnd_format_filter(value):
+    try:
+        value = int(value)
+        return f"{value:,}".replace(",", ".") + " ₫"
+    except (ValueError, TypeError):
+        return "0 ₫"
+
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",
     SESSION_COOKIE_SECURE= True # nếu chạy HTTPS
