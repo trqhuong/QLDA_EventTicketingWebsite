@@ -2,7 +2,7 @@ from app import app, login_manager, db
 from app.models import User, Role, TypeTicket
 from app.dao.user_dao import add_customer, add_organizer, existence_check
 import cloudinary.uploader
-
+import locale
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, sessions, jsonify
 from flask.cli import load_dotenv
@@ -14,6 +14,7 @@ from app.models import User, Role
 
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_dance.contrib.google import make_google_blueprint, google
+
 
 
 @app.route("/")

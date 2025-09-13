@@ -7,6 +7,7 @@ from app import app
 import qrcode
 from io import BytesIO
 
+
 def cart_stats(cart):
     total, total_ticket = 0, 0
     if cart:
