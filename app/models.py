@@ -215,8 +215,8 @@ if __name__ == '__main__':
         #------EventType------
         event_type1=EventType(name="Âm nhạc")
         event_type2=EventType(name="Sân khấu & Nghệ thuật")
-        event_type3=EventType(name="Thể thao")
-        event_type4=EventType(name="Hội chợ & Triển lãm")
+        event_type3=EventType(name="Thể thao & Triển lãm")
+        event_type4=EventType(name="Khác")
 
         db.session.add_all([event_type1, event_type2, event_type3, event_type4])
         db.session.commit()
@@ -226,108 +226,117 @@ if __name__ == '__main__':
             name="Concert Anh trai vượt ngàn chông gai",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Đỉnh nóc kịch trần bay phấp phới",
+            description="Đêm nhạc bùng nổ cảm xúc cùng Anh Trai Vượt Ngàn Chông Gai với dàn nghệ sĩ đình đám.",
             image="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861619/1_pumfa1.png",
             event_type_id=event_type1.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id
+            district_id=district1.id,
+            address="Nguyễn Huệ"
         )
 
         event2 = Event(
             name="Concert Anh trai SAY HI",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Đỉnh nóc kịch trần bay phấp phới",
+            description="Buổi concert giao lưu và chào sân của Anh Trai SAY HI – âm nhạc trẻ trung, hiện đại.",
             image="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861637/2_ccodpr.jpg",
-            event_type_id=event_type2.id,
+            event_type_id=event_type1.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id
+            district_id=district1.id,
+            address="Cách Mạng Tháng 8"
         )
 
         event3 = Event(
             name="Kí ức Hội An",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Thể hiện vẽ đẹp cổ xưa của Hội An",
+            description="Show diễn tái hiện không gian văn hoá Hội An với âm thanh và ánh sáng sống động.",
             image="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861639/3_mbrfgz.jpg",
-            event_type_id=event_type2.id,
+            event_type_id=event_type3.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id
+            district_id=district1.id,
+            address="Nguyễn Phúc Chu"
         )
 
         event4 = Event(
             name="Conan movie 27",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Kịnh tính, sống động",
+            description="Khởi chiếu bộ phim Thám tử lừng danh Conan 27 – gay cấn và bất ngờ.",
             image="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861740/4_dfpm8r.jpg",
-            event_type_id=event_type3.id,
+            event_type_id=event_type4.id,
             organizer_id=1,
             city_id=city2.id,
-            district_id=district4.id
+            district_id=district4.id,
+            address="Phạm Ngọc Thạch"
         )
 
         event5 = Event(
             name="Xóm trọ lắm trò",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Hài hước, vui nhộn",
+            description="Vở kịch hài hước, phản ánh cuộc sống thường nhật ở xóm trọ với nhiều tình huống dở khóc dở cười.",
             image="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861749/5_mfkrih.jpg",
-            event_type_id=event_type1.id,
+            event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district3.id
+            district_id=district3.id,
+            address="Trần Cao Vân"
         )
 
         event6 = Event(
             name="Thứ 4 vui vẻ",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Ngày xửa ngày xưa",
+            description="Chương trình ưu đãi đặc biệt và minigame cho khách tham gia vào ngày Thứ 4 hàng tuần.",
             image="https://res.cloudinary.com/dfi68mgij/image/upload/v1756861793/6_imhqme.jpg",
-            event_type_id=event_type1.id,
+            event_type_id=event_type2.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district2.id
+            district_id=district2.id,
+            address="Bờ Bao Tân Thắng"
         )
 
         event7 = Event(
             name="Doremon và Cuộc phiêu lưu vào thế giới trong tranh",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            description="Phim hoạt hình mới của Doraemon: Nobita cùng nhóm bạn lạc vào thế giới trong tranh kỳ ảo.",
             image="",
-            event_type_id=event_type1.id,
+            event_type_id=event_type4.id,
             organizer_id=1,
             city_id=city1.id,
-            district_id=district1.id
+            district_id=district1.id,
+            address="Lê Lợi"
         )
 
         event8 = Event(
             name="Yêu nhầm bạn thân",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            description="Suất chiếu đặc biệt phim Yêu Nhầm Bạn Thân – câu chuyện tình hài hước, cảm động.",
             image="",
-            event_type_id=event_type1.id,
+            event_type_id=event_type4.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id
+            district_id=district1.id,
+            address="Nguyễn Du"
         )
 
         event9 = Event(
             name="Triển lãm quốc tế thể thao và giải trí ngoài trời",
             time=time(17, 0),
             date=date(2025, 9, 15),
-            description="Hành trình mới của doremon và nobita cũng nhóm bạn",
+            description="Sự kiện triển lãm quy mô lớn trưng bày các sản phẩm và dịch vụ thể thao – giải trí ngoài trời.",
             image="",
-            event_type_id=event_type1.id,
+            event_type_id=event_type3.id,
             organizer_id=2,
             city_id=city1.id,
-            district_id=district1.id
+            district_id=district1.id,
+            address="Nguyễn Văn Linh"
         )
 
         db.session.add_all([event1, event2, event3, event4, event5, event6, event7, event8, event9])

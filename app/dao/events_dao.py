@@ -149,6 +149,7 @@ def get_details_by_event_id(event_id = None):
         'name': event.name,
         'time': event.time.strftime('%H:%M'),
         'date': event.date.strftime('%d-%m-%Y'),
+        'address': event.address,
         'description': event.description,
         'type': event_type.name,
         'location': location_info,
