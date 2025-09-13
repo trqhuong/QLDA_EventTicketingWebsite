@@ -225,16 +225,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-<<<<<<< Updated upstream
-
-@app.route("/organizer")
-def organizer():
-    cities = events_dao.get_all_locations()
-    event_types = events_dao.get_all_event_types()
-    return render_template("organizer.html", cities=cities, event_types=event_types)
-
-=======
->>>>>>> Stashed changes
 @app.route("/api/districts/<int:city_id>")
 def get_districts_by_city(city_id):
     """API endpoint để lấy danh sách quận/huyện theo tỉnh/thành"""
@@ -262,13 +252,8 @@ def create_event_form():
             # Lấy thông tin tickets
             ticket_prices = request.form.getlist('ticket_price[]')
             ticket_quantities = request.form.getlist('ticket_quantity[]')
-<<<<<<< Updated upstream
-            ticket_descriptions = request.form.getlist('ticket_description[]')
-            ticket_types = request.form.getlist('ticket_type[]')  # Lấy ticket types từ form
-            print(current_user.organizer.id)
-=======
             ticket_types = request.form.getlist('ticket_type[]')
->>>>>>> Stashed changes
+
             # Validate dữ liệu
             if not all([event_name, city_id, district_id, address, event_type_id, date, time, image_url]):
                 flash("Vui lòng điền đầy đủ thông tin bắt buộc!", "error")
@@ -283,18 +268,9 @@ def create_event_form():
                 res = cloudinary.uploader.upload(image_url)
                 avatar_path = res['secure_url']
 
-            # Tạo sự kiện mới
-<<<<<<< Updated upstream
-            organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user,
-                                                                                                  'organizer') and current_user.organizer else 1
-
-            new_event = events_dao.create_event_with_tickets(
-=======
-            print(current_user)
             organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user, 'organizer') and current_user.organizer else 1
             
             events_dao.create_event_with_tickets(
->>>>>>> Stashed changes
                 name=event_name,
                 city_id=int(city_id),
                 district_id=int(district_id),
@@ -308,32 +284,18 @@ def create_event_form():
                 ticket_data={
                     'prices': [float(price) for price in ticket_prices if price],
                     'quantities': [int(qty) for qty in ticket_quantities if qty],
-<<<<<<< Updated upstream
-                    'descriptions': ticket_descriptions,
-=======
->>>>>>> Stashed changes
                     'types': ticket_types
                 }
             )
 
             flash("Tạo sự kiện thành công!", "success")
-<<<<<<< Updated upstream
-            return redirect(url_for('organizer'))
-
-=======
             return redirect(url_for('create_event_new'))
-            
->>>>>>> Stashed changes
+
         except ValueError as ve:
             flash(f"Dữ liệu không hợp lệ: {str(ve)}", "error")
         except Exception as e:
             flash(f"Lỗi khi tạo sự kiện: {str(e)}", "error")
-<<<<<<< Updated upstream
         return redirect(url_for('create_event_form'))
-
-=======
-    
->>>>>>> Stashed changes
     # GET request - hiển thị form
     cities = events_dao.get_all_locations()
     event_types = events_dao.get_all_event_types()
