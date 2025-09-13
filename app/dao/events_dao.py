@@ -125,7 +125,6 @@ def create_event_with_tickets(name, city_id, district_id, address, event_type_id
                     event_id=new_event.id
                 )
                 db.session.add(new_ticket)
-<<<<<<< Updated upstream
         
         db.session.commit()
         return new_event
@@ -156,14 +155,6 @@ def get_details_by_event_id(event_id = None):
         'image_url' : event.image
     }
     return event_details
-=======
-    finally:
-        try:
-            db.session.commit()
-            return new_event
-        except Exception as e:
-            db.session.rollback()
-            raise e
 
 def get_events_by_organizer(organizer_id, page=1, per_page=6, status_filter=None):
     """Lấy tất cả sự kiện của một nhà tổ chức với phân trang và lọc theo trạng thái"""
@@ -184,4 +175,3 @@ def get_events_by_organizer(organizer_id, page=1, per_page=6, status_filter=None
     query = query.order_by(Event.date.desc())
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
->>>>>>> Stashed changes
