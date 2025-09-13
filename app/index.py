@@ -2,7 +2,8 @@ from app import app, login_manager, db
 from app.models import User, Role, TypeTicket
 from app.dao.user_dao import add_customer, add_organizer, existence_check
 import cloudinary.uploader
-import locale
+
+from datetime import date
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, sessions, jsonify
 from flask.cli import load_dotenv
@@ -72,7 +73,7 @@ def login():
             elif user.role == Role.CUSTOMER:
                 return redirect('/')
             elif user.role == Role.ORGANIZER:
-                return redirect('/organizer')
+                return redirect('/event_of_organizer')
             else:
                 return redirect('/login')
         else:
@@ -225,13 +226,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-
-@app.route("/organizer")
-def organizer():
-    cities = events_dao.get_all_locations()
-    event_types = events_dao.get_all_event_types()
-    return render_template("organizer.html", cities=cities, event_types=event_types)
-
 @app.route("/api/districts/<int:city_id>")
 def get_districts_by_city(city_id):
     """API endpoint để lấy danh sách quận/huyện theo tỉnh/thành"""
@@ -257,18 +251,16 @@ def create_event_form():
             time = request.form.get('time')
 
             # Lấy thông tin tickets
-            ticket_names = request.form.getlist('ticket_name[]')
             ticket_prices = request.form.getlist('ticket_price[]')
             ticket_quantities = request.form.getlist('ticket_quantity[]')
-            ticket_descriptions = request.form.getlist('ticket_description[]')
-            ticket_types = request.form.getlist('ticket_type[]')  # Lấy ticket types từ form
-            print(current_user.organizer.id)
+            ticket_types = request.form.getlist('ticket_type[]')
+
             # Validate dữ liệu
             if not all([event_name, city_id, district_id, address, event_type_id, date, time, image_url]):
                 flash("Vui lòng điền đầy đủ thông tin bắt buộc!", "error")
                 return redirect(url_for('create_event_form'))
 
-            if not ticket_names or len(ticket_names) == 0:
+            if not ticket_prices or len(ticket_prices) == 0:
                 flash("Vui lòng thêm ít nhất một loại vé!", "error")
                 return redirect(url_for('create_event_form'))
 
@@ -277,11 +269,9 @@ def create_event_form():
                 res = cloudinary.uploader.upload(image_url)
                 avatar_path = res['secure_url']
 
-            # Tạo sự kiện mới
-            organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user,
-                                                                                                  'organizer') and current_user.organizer else 1
-
-            new_event = events_dao.create_event_with_tickets(
+            organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user, 'organizer') and current_user.organizer else 1
+            
+            events_dao.create_event_with_tickets(
                 name=event_name,
                 city_id=int(city_id),
                 district_id=int(district_id),
@@ -293,28 +283,63 @@ def create_event_form():
                 time=time,
                 organizer_id=organizer_id,
                 ticket_data={
-                    'names': ticket_names,
                     'prices': [float(price) for price in ticket_prices if price],
                     'quantities': [int(qty) for qty in ticket_quantities if qty],
-                    'descriptions': ticket_descriptions,
                     'types': ticket_types
                 }
             )
 
             flash("Tạo sự kiện thành công!", "success")
-            return redirect(url_for('organizer'))
+            return redirect(url_for('create_event_new'))
 
         except ValueError as ve:
             flash(f"Dữ liệu không hợp lệ: {str(ve)}", "error")
         except Exception as e:
             flash(f"Lỗi khi tạo sự kiện: {str(e)}", "error")
         return redirect(url_for('create_event_form'))
-
     # GET request - hiển thị form
     cities = events_dao.get_all_locations()
     event_types = events_dao.get_all_event_types()
     ticket_types = list(TypeTicket)
     return render_template("create_event_new.html", cities=cities, event_types=event_types, ticket_types=ticket_types)
+
+@app.route("/event_of_organizer")
+def event_of_organizer():
+    """Trang hiển thị các sự kiện của nhà tổ chức hiện tại"""
+    if not current_user.is_authenticated or current_user.role != Role.ORGANIZER:
+        flash("Bạn cần đăng nhập với tài khoản nhà tổ chức!", "error")
+        return redirect(url_for('login'))
+
+    # Lấy organizer_id từ current_user
+    organizer_id = current_user.organizer.id if current_user.organizer else None
+
+    if not organizer_id:
+        flash("Không tìm thấy thông tin nhà tổ chức!", "error")
+        return redirect(url_for('organizer'))
+
+    # Lấy các tham số từ query string
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', None)
+
+    # Lấy danh sách sự kiện của nhà tổ chức với phân trang và lọc
+    pagination = events_dao.get_events_by_organizer(
+        organizer_id,
+        page=page,
+        per_page=6,
+        status_filter=status_filter
+    )
+    events = pagination.items
+
+    # Import datetime để lấy ngày hiện tại
+    today = date.today()
+
+    return render_template(
+        "event_of_organizer.html",
+        events=events,
+        pagination=pagination,
+        today=today,
+        current_status=status_filter
+    )
 
 
 @app.route('/detail_event')

@@ -1,6 +1,9 @@
-from app.models import Event, Artist, City, District, EventArtist, EventType, Ticket
+from exceptiongroup import catch
+
+from app.models import Event, Artist, City, District, EventArtist, EventType, Ticket, TicketStatus
 from app import db
 from datetime import datetime, time, date
+from app.models import TypeTicket
 
 def get_all_artists():
     return Artist.query.all()
@@ -66,38 +69,21 @@ def create_event(name, city_id, district_id, address, event_type_id, description
         db.session.rollback()
         raise e
 
-def create_event_with_tickets(name, city_id, district_id, address, event_type_id, description, 
-                             image_url, start_date, start_time, end_date, end_time, 
-                             organizer_id, ticket_data):
+def create_event_with_tickets(name, city_id, district_id, address, event_type_id, description,
+                             image_url, date, time, organizer_id, ticket_data):
     """Tạo sự kiện mới với thông tin tickets"""
     try:
         # Chuyển đổi string date và time thành đối tượng date và time
-        if isinstance(start_date, str):
-            event_start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        if isinstance(date, str):
+            event_start_date = datetime.strptime(date, '%Y-%m-%d').date()
         else:
-            event_start_date = start_date
-            
-        if isinstance(start_time, str):
-            event_start_time = datetime.strptime(start_time, '%H:%M').time()
+            event_start_date = date
+
+        if isinstance(time, str):
+            event_start_time = datetime.strptime(time, '%H:%M').time()
         else:
-            event_start_time = start_time
-        
-        # Xử lý end_date và end_time (có thể null)
-        event_end_date = None
-        event_end_time = None
-        
-        if end_date:
-            if isinstance(end_date, str):
-                event_end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-            else:
-                event_end_date = end_date
-                
-        if end_time:
-            if isinstance(end_time, str):
-                event_end_time = datetime.strptime(end_time, '%H:%M').time()
-            else:
-                event_end_time = end_time
-        
+            event_start_time = time
+
         # Tạo sự kiện mới
         new_event = Event(
             name=name,
@@ -107,27 +93,22 @@ def create_event_with_tickets(name, city_id, district_id, address, event_type_id
             event_type_id=event_type_id,
             description=description,
             image=image_url,
-            startDate=event_start_date,
-            startTime=event_start_time,
-            endDate=event_end_date,
-            endTime=event_end_time,
+            date=event_start_date,
+            time=event_start_time,
             organizer_id=organizer_id
         )
-        
+
         db.session.add(new_event)
         db.session.flush()  # Để có event.id
-        
+
         # Tạo tickets với đúng tên field
-        ticket_names = ticket_data['names']
         ticket_prices = ticket_data['prices']
         ticket_quantities = ticket_data['quantities']
         ticket_descriptions = ticket_data['descriptions']
         ticket_types = ticket_data.get('types', [])  # Lấy ticket types từ form
 
-        for i in range(len(ticket_names)):
-            if ticket_names[i]:  # Kiểm tra tên ticket không rỗng
-                # Import TypeTicket để convert string thành enum
-                from app.models import TypeTicket
+        for i in range(len(ticket_prices)):
+            if ticket_prices[i]:  # Kiểm tra tên ticket không rỗng
 
                 # Xử lý ticket type
                 ticket_type = TypeTicket.Standard  # Default
@@ -136,10 +117,8 @@ def create_event_with_tickets(name, city_id, district_id, address, event_type_id
                         ticket_type = TypeTicket.VIP
                     else:
                         ticket_type = TypeTicket.Standard
-
                 new_ticket = Ticket(
-                    name=ticket_names[i],  # Sử dụng field name
-                    description=ticket_descriptions[i] if i < len(ticket_descriptions) else None,  # Sử dụng field description
+                    status=TicketStatus.Available,
                     type=ticket_type,
                     price=ticket_prices[i] if i < len(ticket_prices) else 0,
                     quantity=ticket_quantities[i] if i < len(ticket_quantities) else 1,
@@ -177,3 +156,23 @@ def get_details_by_event_id(event_id = None):
         'image_url' : event.image
     }
     return event_details
+
+def get_events_by_organizer(organizer_id, page=1, per_page=6, status_filter=None):
+    """Lấy tất cả sự kiện của một nhà tổ chức với phân trang và lọc theo trạng thái"""
+    from datetime import date
+    today = date.today()
+
+    query = Event.query.filter(Event.organizer_id == organizer_id)
+
+    # Lọc theo trạng thái
+    if status_filter == 'upcoming':  # Sắp diễn ra
+        query = query.filter(Event.date > today)
+    elif status_filter == 'ongoing':  # Đang diễn ra
+        query = query.filter(Event.date == today)
+    elif status_filter == 'completed':  # Đã kết thúc
+        query = query.filter(Event.date < today)
+
+    # Sắp xếp theo ngày (mới nhất trước)
+    query = query.order_by(Event.date.desc())
+
+    return query.paginate(page=page, per_page=per_page, error_out=False)
