@@ -1,46 +1,57 @@
-{% extends 'organizer_layout/base.html' %}
+{% extends layout %}
 
-{% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
-
 
 <div class="container my-4">
     <h3 class="text-success fw-bold mb-4">📊 Thống kê sự kiện & doanh thu</h3>
-    <!-- Bộ lọc năm & tháng -->
-    <div class="d-flex justify-content-center align-items-center mb-4 gap-2">
+    <!-- Bộ lọc năm, tháng & quý -->
+    <form method="GET" class="d-flex justify-content-center align-items-center mb-4 gap-2">
         <!-- Chọn năm -->
-        <select class="form-select filter-select w-auto">
-            <option>-- Chọn năm --</option>
-            <option>2023</option>
-            <option>2024</option>
-            <option>2025</option>
+        <select name="year" class="form-select filter-select w-auto">
+            <option value="">-- Chọn năm --</option>
+            {% for year in years %}
+                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
         </select>
 
         <!-- Chọn tháng -->
-        <select class="form-select filter-select w-auto">
-            <option>-- Chọn tháng --</option>
-            <option>Tháng 1</option>
-            <option>Tháng 2</option>
-            <option>Tháng 3</option>
-            <option>Tháng 4</option>
+        <select name="month" class="form-select filter-select w-auto" id="monthSelect">
+            <option value="">-- Chọn tháng --</option>
+            {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if i == selected_month %}selected{% endif %}>Tháng {{ i }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Chọn quý -->
+        <select name="quarter" class="form-select filter-select w-auto" id="quarterSelect">
+            <option value="">-- Chọn quý --</option>
+            <option value="1" {% if selected_quarter == 1 %}selected{% endif %}>Quý 1 (Tháng 1-3)</option>
+            <option value="2" {% if selected_quarter == 2 %}selected{% endif %}>Quý 2 (Tháng 4-6)</option>
+            <option value="3" {% if selected_quarter == 3 %}selected{% endif %}>Quý 3 (Tháng 7-9)</option>
+            <option value="4" {% if selected_quarter == 4 %}selected{% endif %}>Quý 4 (Tháng 10-12)</option>
         </select>
 
         <!-- Nút lọc -->
-        <button class="btn btn-success">Lọc</button>
-    </div>
+        <button type="submit" class="btn btn-success">Lọc</button>
+        {% if is_admin %}
+            <a href="/admin/statsview/" class="btn btn-secondary">Reset</a>
+        {% else %}
+            <a href="{{ url_for('report_event') }}" class="btn btn-secondary">Reset</a>
+        {% endif %}
+    </form>
 
     <!-- Thống kê nhanh -->
     <div class="row g-3 mb-4">
         <div class="col-md-6">
             <div class="stat-card text-center">
                 <h5 class="text-secondary">Tổng số sự kiện</h5>
-                <p class="stat-number text-success">12</p>
+                <p class="stat-number text-success">{{ total_events }}</p>
             </div>
         </div>
         <div class="col-md-6">
             <div class="stat-card text-center">
                 <h5 class="text-secondary">Tổng doanh thu</h5>
-                <p class="stat-number text-success">1.200.000.000 VND</p>
+                <p class="stat-number text-success">{{ "{:,.0f}".format(total_revenue) }} VND</p>
             </div>
         </div>
     </div>
@@ -49,42 +60,148 @@
     <div class="row g-4">
         <div class="col-md-6">
             <div class="stat-card">
-                <h6 class="mb-3">Sự kiện theo tháng</h6>
+                <h6 class="mb-3">
+                    {% if selected_quarter %}
+                        Sự kiện theo quý {{ selected_quarter }}
+                    {% elif selected_month %}
+                        Sự kiện tháng {{ selected_month }}
+                    {% else %}
+                        Sự kiện theo tháng
+                    {% endif %}
+                </h6>
                 <canvas id="eventsChart"></canvas>
             </div>
         </div>
         <div class="col-md-6">
             <div class="stat-card">
-                <h6 class="mb-3">Doanh thu theo tháng</h6>
+                <h6 class="mb-3">
+                    {% if selected_quarter %}
+                        Doanh thu theo quý {{ selected_quarter }}
+                    {% elif selected_month %}
+                        Doanh thu tháng {{ selected_month }}
+                    {% else %}
+                        Doanh thu theo tháng
+                    {% endif %}
+                </h6>
                 <canvas id="revenueChart"></canvas>
             </div>
         </div>
     </div>
+
+    <!-- Chi tiết thống kê sự kiện -->
+    {% if event_statistics %}
+    <div class="mt-5">
+        <h5 class="text-success fw-bold mb-3">📋 Chi tiết sự kiện</h5>
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Tên sự kiện</th>
+                        <th>Ngày</th>
+                        <th>Giờ</th>
+                        <th>Vé đã bán</th>
+                        <th>Doanh thu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in event_statistics %}
+                    <tr>
+                        <td>{{ event.name }}</td>
+                        <td>{{ event.date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ event.time.strftime('%H:%M') }}</td>
+                        <td>{{ event.tickets_sold }}</td>
+                        <td>{{ "{:,.0f}".format(event.revenue) }} VND</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <script>
-    // Dữ liệu mẫu
-    const months = ["1", "2", "3", "4", "5", "6"];
-    const eventsData = [2, 1, 3, 2, 4, 0];
-    const revenueData = [200, 150, 400, 300, 120, 80];
+    // Xử lý tương tác giữa month và quarter select
+    const monthSelect = document.getElementById('monthSelect');
+    const quarterSelect = document.getElementById('quarterSelect');
+
+    monthSelect.addEventListener('change', function() {
+        if (this.value) {
+            quarterSelect.value = '';
+            quarterSelect.disabled = true;
+        } else {
+            quarterSelect.disabled = false;
+        }
+    });
+
+    quarterSelect.addEventListener('change', function() {
+        if (this.value) {
+            monthSelect.value = '';
+            monthSelect.disabled = true;
+        } else {
+            monthSelect.disabled = false;
+        }
+    });
+
+    // Khởi tạo trạng thái ban đầu
+    if (monthSelect.value) {
+        quarterSelect.disabled = true;
+    }
+    if (quarterSelect.value) {
+        monthSelect.disabled = true;
+    }
+
+    // Dữ liệu động từ backend
+    const eventsData = {{ monthly_events | safe }};
+    const revenueData = {{ monthly_revenue | safe }};
+
+    // Xử lý labels và dữ liệu dựa trên việc có lọc theo tháng, quý hay không
+    let chartLabels, chartEventsData, chartRevenueData;
+
+    {% if selected_quarter %}
+        // Nếu lọc theo quý, hiển thị 3 tháng của quý đó
+        const quarterMonths = {
+            1: ["Tháng 1", "Tháng 2", "Tháng 3"],
+            2: ["Tháng 4", "Tháng 5", "Tháng 6"],
+            3: ["Tháng 7", "Tháng 8", "Tháng 9"],
+            4: ["Tháng 10", "Tháng 11", "Tháng 12"]
+        };
+        chartLabels = quarterMonths[{{ selected_quarter }}];
+        chartEventsData = eventsData;
+        chartRevenueData = revenueData;
+    {% elif selected_month %}
+        // Nếu lọc theo tháng cụ thể, chỉ hiển thị tháng đó
+        chartLabels = ["Tháng {{ selected_month }}"];
+        chartEventsData = eventsData;
+        chartRevenueData = revenueData;
+    {% else %}
+        // Nếu không lọc theo tháng hoặc quý, hiển thị cả 12 tháng
+        chartLabels = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                      "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
+        chartEventsData = eventsData;
+        chartRevenueData = revenueData;
+    {% endif %}
 
     // Chart sự kiện
     new Chart(document.getElementById("eventsChart"), {
       type: "bar",
       data: {
-        labels: months,
+        labels: chartLabels,
         datasets: [{
           label: "Số sự kiện",
-          data: eventsData,
+          data: chartEventsData,
           backgroundColor: "rgba(25,135,84,0.8)"
         }]
       },
       options: {
+        responsive: true,
         scales: {
           y: {
+            beginAtZero: true,
             ticks: {
               color: "#fff",
-              font: { size: 14, weight: "bold" }
+              font: { size: 14, weight: "bold" },
+              stepSize: 1
             },
             grid: { color: "rgba(255,255,255,0.1)" }
           },
@@ -94,6 +211,13 @@
               font: { size: 14, weight: "bold" }
             },
             grid: { color: "rgba(255,255,255,0.1)" }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: "#fff"
+            }
           }
         }
       }
@@ -101,24 +225,29 @@
 
     // Chart doanh thu
     new Chart(document.getElementById("revenueChart"), {
-      type: "line",
+      type: {% if selected_month %}"bar"{% else %}"line"{% endif %},
       data: {
-        labels: months,
+        labels: chartLabels,
         datasets: [{
-          label: "Doanh thu (triệu VND)",
-          data: revenueData,
-          borderColor: "rgba(25,135,84,0.9)",
-          backgroundColor: "rgba(25,135,84,0.2)",
-          fill: true,
-          tension: 0.3
+          label: "Doanh thu (VND)",
+          data: chartRevenueData,
+          backgroundColor: {% if selected_month or selected_quarter %}"rgba(25,135,84,0.8)"{% else %}"rgba(25,135,84,0.2)"{% endif %},
+          borderColor: "rgba(25,135,84,1)",
+          borderWidth: 2,
+          {% if not selected_month and not selected_quarter %}fill: true{% endif %}
         }]
       },
       options: {
+        responsive: true,
         scales: {
           y: {
+            beginAtZero: true,
             ticks: {
               color: "#fff",
-              font: { size: 14, weight: "bold" }
+              font: { size: 14, weight: "bold" },
+              callback: function(value) {
+                return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
+              }
             },
             grid: { color: "rgba(255,255,255,0.1)" }
           },
@@ -129,8 +258,16 @@
             },
             grid: { color: "rgba(255,255,255,0.1)" }
           }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: "#fff"
+            }
+          }
         }
       }
     });
 </script>
+
 {% endblock %}

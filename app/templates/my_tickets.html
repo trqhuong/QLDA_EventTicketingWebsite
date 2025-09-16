@@ -1,0 +1,283 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<style>
+/* CSS riêng cho trang my_tickets - ghi đè CSS từ my_ticket.css */
+body {
+    background: #f8f9fa !important;
+    color: #333 !important;
+}
+
+.ticket-card {
+    background: #fff !important;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    overflow: hidden !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    height: 100% !important;
+    margin-bottom: 20px !important;
+    width: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    padding: 0 !important;
+}
+
+.ticket-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.ticket-header {
+    position: relative !important;
+    height: 200px !important;
+    overflow: hidden !important;
+}
+
+.event-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.event-overlay {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8)) !important;
+    padding: 20px 15px 15px !important;
+    color: white !important;
+}
+
+.event-title {
+    margin: 0 !important;
+    font-size: 1.1rem !important;
+    font-weight: bold !important;
+    color: white !important;
+}
+
+.ticket-body {
+    padding: 15px !important;
+}
+
+.ticket-info .info-row {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+    font-size: 0.9rem !important;
+    color: #333 !important;
+}
+
+.ticket-info .info-row i {
+    width: 20px !important;
+    margin-right: 10px !important;
+    color: #6c757d !important;
+}
+
+.ticket-status {
+    margin: 15px 0 !important;
+    text-align: center !important;
+}
+
+.badge {
+    padding: 8px 15px !important;
+    font-size: 0.8rem !important;
+    border-radius: 20px !important;
+}
+
+.purchase-info {
+    text-align: center !important;
+    margin-top: 10px !important;
+}
+
+.ticket-footer {
+    padding: 15px !important;
+    background: #f8f9fa !important;
+    border-top: 1px solid #dee2e6 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.bill-id {
+    font-size: 0.85rem !important;
+    color: #6c757d !important;
+}
+
+.no-tickets {
+    padding: 60px 0 !important;
+}
+
+.pagination .page-link {
+    color: #007bff !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 8px 12px !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef !important;
+    border-color: #dee2e6 !important;
+}
+
+@media (max-width: 768px) {
+    .ticket-card {
+        margin-bottom: 20px !important;
+    }
+
+    .ticket-footer {
+        flex-direction: column !important;
+        gap: 10px !important;
+        text-align: center !important;
+    }
+}
+</style>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">🎫 Vé của tôi</h2>
+
+            {% if tickets %}
+                <div class="row">
+                    {% for ticket in tickets %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="ticket-card">
+                            <div class="ticket-header">
+                                <img src="{{ ticket.event_image }}" alt="{{ ticket.event_name }}" class="event-image">
+                                <div class="event-overlay">
+                                    <h5 class="event-title">{{ ticket.event_name }}</h5>
+                                </div>
+                            </div>
+
+                            <div class="ticket-body">
+                                <div class="ticket-info">
+                                    <div class="info-row">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>{{ ticket.event_date.strftime('%d/%m/%Y') }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-clock"></i>
+                                        <span>{{ ticket.event_time.strftime('%H:%M') }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>{{ ticket.event_address }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-ticket-alt"></i>
+                                        <span>{{ ticket.ticket_type.value }} x{{ ticket.bought_quantity }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>{{ "{:,.0f}".format(ticket.ticket_price * ticket.bought_quantity) }} VND</span>
+                                    </div>
+                                    {% if ticket.code %}
+                                    <div class="info-row">
+                                        <i class="fas fa-barcode"></i>
+                                        <span><strong>Mã vé:</strong> {{ ticket.code }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Trạng thái sử dụng vé -->
+                                <div class="ticket-usage-status mb-3">
+                                    {% if ticket.used %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-check-circle"></i> Đã sử dụng
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-clock"></i> Chưa sử dụng
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Trạng thái vé từ Bill -->
+                                <div class="ticket-status">
+                                    {% if ticket.status_ticket.name == 'Unused' %}
+                                        <span class="badge badge-success">{{ ticket.status_ticket.value }}</span>
+                                    {% elif ticket.status_ticket.name == 'Used' %}
+                                        <span class="badge badge-secondary">{{ ticket.status_ticket.value }}</span>
+                                    {% elif ticket.status_ticket.name == 'Cancelled' %}
+                                        <span class="badge badge-danger">{{ ticket.status_ticket.value }}</span>
+                                    {% elif ticket.status_ticket.name == 'Expired' %}
+                                        <span class="badge badge-warning">{{ ticket.status_ticket.value }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="purchase-info">
+                                    <small class="text-muted">
+                                        Mua ngày: {{ ticket.created_date.strftime('%d/%m/%Y %H:%M') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Phân trang -->
+                {% if pagination.pages > 1 %}
+                <nav aria-label="Phân trang vé">
+                    <ul class="pagination justify-content-center">
+                        {% if pagination.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('my_tickets', page=pagination.prev_num) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for page_num in pagination.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != pagination.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('my_tickets', page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if pagination.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('my_tickets', page=pagination.next_num) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="no-tickets">
+                    <div class="text-center">
+                        <i class="fas fa-ticket-alt fa-5x text-muted mb-3"></i>
+                        <h4 class="text-muted">Bạn chưa có vé nào</h4>
+                        <p class="text-muted">Hãy khám phá các sự kiện thú vị và đặt vé ngay!</p>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Khám phá sự kiện
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+}
+</style>
+{% endblock %}

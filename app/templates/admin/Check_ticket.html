@@ -1,0 +1,264 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .check-ticket-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .alert-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+    }
+
+    .ticket-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .info-label {
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .info-value {
+        color: #212529;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .status-used {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .status-unused {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    h1 {
+        color: #343a40;
+        margin-bottom: 30px;
+        font-weight: 700;
+    }
+
+    .scanner-icon {
+        font-size: 48px;
+        color: #007bff;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="check-ticket-container">
+    <div class="text-center">
+        <div class="scanner-icon">🎫</div>
+        <h1>Quét mã vé</h1>
+    </div>
+
+    <div class="card">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'error' else 'warning' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('check_ticket_view.scan_ticket') }}">
+            <div class="form-group">
+                <label for="ticket_code" class="info-label">Mã vé:</label>
+                <input type="text"
+                       id="ticket_code"
+                       name="ticket_code"
+                       class="form-control"
+                       placeholder="Nhập mã vé cần kiểm tra..."
+                       required
+                       autofocus>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    Kiểm tra vé
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if ticket_info %}
+    <div class="card">
+        <h3 style="color: #007bff; margin-bottom: 20px;">Thông tin vé</h3>
+        <div class="ticket-info">
+            <div class="info-row">
+                <span class="info-label">Mã vé:</span>
+                <span class="info-value">{{ ticket_info.code }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Sự kiện:</span>
+                <span class="info-value">{{ ticket_info.event_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Loại vé:</span>
+                <span class="info-value">{{ ticket_info.ticket_type }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Giá vé:</span>
+                <span class="info-value">{{ "{:,.0f}".format(ticket_info.price) }} VND</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Số lượng:</span>
+                <span class="info-value">{{ ticket_info.quantity }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Người mua:</span>
+                <span class="info-value">{{ ticket_info.buyer_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ ticket_info.buyer_email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Ngày mua:</span>
+                <span class="info-value">{{ ticket_info.purchase_date.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Trạng thái:</span>
+                <span class="status-badge {{ 'status-used' if ticket_info.used else 'status-unused' }}">
+                    {{ 'Đã sử dụng' if ticket_info.used else 'Chưa sử dụng' }}
+                </span>
+            </div>
+        </div>
+
+        {% if not ticket_info.used %}
+        <div class="text-center" style="margin-top: 20px;">
+            <form method="POST" action="{{ url_for('check_ticket_view.use_ticket') }}" style="display: inline;">
+                <input type="hidden" name="ticket_code" value="{{ ticket_info.code }}">
+                <button type="submit" class="btn btn-primary"
+                        onclick="return confirm('Bạn có chắc chắn muốn đánh dấu vé này đã sử dụng?')">
+                    Đánh dấu đã sử dụng
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+
+// Auto focus input when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('ticket_code').focus();
+});
+
+// Allow Enter key to submit form
+document.getElementById('ticket_code').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}
