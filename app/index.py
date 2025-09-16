@@ -1,20 +1,18 @@
+from flask import Flask, render_template, request, redirect, url_for, session, flash, sessions, jsonify
+from flask_dance.contrib.google import google
+from flask_login import login_user, logout_user, current_user, login_required
+
 from app import app, login_manager, db
 from app.models import User, Role, TypeTicket
 from app.dao.user_dao import add_customer, add_organizer, existence_check
+from app.dao import user_dao, events_dao, bill_dao
 import cloudinary.uploader
 
 from datetime import date
-
-from flask import Flask, render_template, request, redirect, url_for, session, flash, sessions, jsonify
-from flask.cli import load_dotenv
-
 from datetime import datetime
 from app import app, login_manager, db, utils, VNPAY_CONFIG
 from app.dao import user_dao, events_dao, ticket_dao, vnpay_dao, bill_dao
 from app.models import User, Role
-
-from flask_login import login_user, logout_user, login_required, current_user
-from flask_dance.contrib.google import make_google_blueprint, google
 
 
 
@@ -95,12 +93,10 @@ def login():
 
     return render_template('login.html', err_message=err_message)
 
-
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect('/')
-
 
 @app.route('/create_account', methods=['GET', 'POST'])
 def create_account():
@@ -205,7 +201,9 @@ def register():
 
     return render_template('create_account.html', err_message=err_message)
 
-
+@app.route('/event/<int:event_id>')
+def detail_event():
+    return render_template('index.html')
 
 @app.route("/login/google")
 def login_google():
@@ -234,11 +232,9 @@ def callback():
     return redirect("/")
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 @app.route("/api/districts/<int:city_id>")
 def get_districts_by_city(city_id):
@@ -246,76 +242,6 @@ def get_districts_by_city(city_id):
     districts = events_dao.get_districts_by_city(city_id)
     return jsonify([{"id": district.id, "name": district.name} for district in districts])
 
-
-@app.route("/create_event", methods=['GET', 'POST'])
-def create_event_form():
-    if request.method == 'POST':
-        try:
-            # Lấy dữ liệu cơ bản từ form
-            event_name = request.form.get('event_name')
-            city_id = request.form.get('city_id')
-            district_id = request.form.get('district_id')
-            address = request.form.get('address')
-            event_type_id = request.form.get('event_type_id')
-            description = request.form.get('description')
-            image_url = request.files.get('image_url')
-
-            # Lấy thông tin thời gian
-            date = request.form.get('date')
-            time = request.form.get('time')
-
-            # Lấy thông tin tickets
-            ticket_prices = request.form.getlist('ticket_price[]')
-            ticket_quantities = request.form.getlist('ticket_quantity[]')
-            ticket_types = request.form.getlist('ticket_type[]')
-
-            # Validate dữ liệu
-            if not all([event_name, city_id, district_id, address, event_type_id, date, time, image_url]):
-                flash("Vui lòng điền đầy đủ thông tin bắt buộc!", "error")
-                return redirect(url_for('create_event_form'))
-
-            if not ticket_prices or len(ticket_prices) == 0:
-                flash("Vui lòng thêm ít nhất một loại vé!", "error")
-                return redirect(url_for('create_event_form'))
-
-            avatar_path = None
-            if image_url:
-                res = cloudinary.uploader.upload(image_url)
-                avatar_path = res['secure_url']
-
-            organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user, 'organizer') and current_user.organizer else 1
-            
-            events_dao.create_event_with_tickets(
-                name=event_name,
-                city_id=int(city_id),
-                district_id=int(district_id),
-                address=address,
-                event_type_id=int(event_type_id),
-                description=description,
-                image_url=avatar_path,
-                date=date,
-                time=time,
-                organizer_id=organizer_id,
-                ticket_data={
-                    'prices': [float(price) for price in ticket_prices if price],
-                    'quantities': [int(qty) for qty in ticket_quantities if qty],
-                    'types': ticket_types
-                }
-            )
-
-            flash("Tạo sự kiện thành công!", "success")
-            return redirect(url_for('create_event_new'))
-
-        except ValueError as ve:
-            flash(f"Dữ liệu không hợp lệ: {str(ve)}", "error")
-        except Exception as e:
-            flash(f"Lỗi khi tạo sự kiện: {str(e)}", "error")
-        return redirect(url_for('create_event_form'))
-    # GET request - hiển thị form
-    cities = events_dao.get_all_locations()
-    event_types = events_dao.get_all_event_types()
-    ticket_types = list(TypeTicket)
-    return render_template("create_event_new.html", cities=cities, event_types=event_types, ticket_types=ticket_types)
 
 @app.route("/event_of_organizer")
 def event_of_organizer():
@@ -356,89 +282,79 @@ def event_of_organizer():
     )
 
 
-@app.route('/detail_event')
-def detail_event():
-    cart = session.get(app.config['CART_KEY'], {})
-    if cart:
-        session.pop(app.config['CART_KEY'], None)
-        cart = {}
-        # for cart_id,ticket_details in cart.items():
-        #     print(f"ticket_id: {cart_id}, quantity: {ticket_details['quantity']} \n")
-    else :
-        print("cart is empty")
-    cart_info = utils.cart_stats(cart)
+@app.route("/create_event", methods=['GET', 'POST'])
+def create_event_form():
+    if request.method == 'POST':
+        try:
+            # Lấy dữ liệu cơ bản từ form
+            event_name = request.form.get('event_name')
+            city_id = request.form.get('city_id')
+            district_id = request.form.get('district_id')
+            address = request.form.get('address')
+            event_type_id = request.form.get('event_type_id')
+            description = request.form.get('description')
+            image_url = request.files.get('image_url')
 
-    event_id = request.args.get('event_id')
+            # Lấy thông tin thời gian
+            date = request.form.get('date')
+            time = request.form.get('time')
 
-    event_details = events_dao.get_details_by_event_id(event_id)
-    tickets = ticket_dao.get_tickets_by_event_id(event_id)
-    tickets_dict = [
-        {
-            "id": t.id,
-            "type": t.type.value,
-            "price": t.price,
-            "quantity": t.quantity
-        }
-        for t in tickets
-    ]
-    return render_template('detail_event.html', event=event_details, event_id=event_id, tickets=tickets,
-                           tickets_dict = tickets_dict,cart_info = cart_info)
+            # Lấy thông tin tickets
+            ticket_prices = request.form.getlist('ticket_price[]')
+            ticket_quantities = request.form.getlist('ticket_quantity[]')
+            ticket_types = request.form.getlist('ticket_type[]')
 
+            # Validate dữ liệu
+            if not all([event_name, city_id, district_id, address, event_type_id, date, time, image_url]):
+                flash("Vui lòng điền đầy đủ thông tin bắt buộc!", "error")
+                return redirect(url_for('create_event_form'))
 
-@app.route("/api/cart", methods=['post'])
+            if not ticket_prices or len(ticket_prices) == 0:
+                flash("Vui lòng thêm ít nhất một loại vé!", "error")
+                return redirect(url_for('create_event_form'))
 
-def add_to_cart():
-    key = app.config['CART_KEY']
+            avatar_path = None
+            if image_url:
+                res = cloudinary.uploader.upload(image_url)
+                avatar_path = res['secure_url']
 
-    data = request.json
-    if not data or 'ticket_id' not in data  or 'type' not in data or 'price' not in data:
-        return jsonify({'error': 'Missing data in request'}), 400
-    id = str(data['ticket_id'])
-    type = str(data['type'])
-    price = float(data['price'])
-    cart = session[key] if key in session else {}
-    if id in cart:
-        cart[id]['quantity'] += 1
-    else:
-        cart[id] = {
-            "ticket_id": id,
-            "type": type,
-            "price": price,
-            "quantity": 1
-        }
+            organizer_id = current_user.organizer.id if current_user.is_authenticated and hasattr(current_user,
+                                                                                                  'organizer') and current_user.organizer else 1
 
-    session[key] = cart
-    return jsonify(utils.cart_stats(cart))
+            events_dao.create_event_with_tickets(
+                name=event_name,
+                city_id=int(city_id),
+                district_id=int(district_id),
+                address=address,
+                event_type_id=int(event_type_id),
+                description=description,
+                image_url=avatar_path,
+                date=date,
+                time=time,
+                organizer_id=organizer_id,
+                ticket_data={
+                    'prices': [float(price) for price in ticket_prices if price],
+                    'quantities': [int(qty) for qty in ticket_quantities if qty],
+                    'types': ticket_types
+                }
+            )
 
-@app.route("/api/cart", methods=['put'])
-def remove_from_cart():
-    key = app.config['CART_KEY']
-    # Nhận dữ liệu JSON từ FE, parse thành Python Object // Deserialize JSON -> Object(PythonObject)
+            flash("Tạo sự kiện thành công!", "success")
+            return redirect(url_for('create_event_new'))
 
-    #Xử lí logic xong, parse lại thành JSON gửi về clien (Serialize) thông quan jsonify
-    data = request.json
-    # print(data)
-    if not data or 'ticket_id' not in data:
-        return jsonify({'error': 'Missing data in request'}), 400
-    id = str(data['ticket_id'])
-    cart = session.get(key, {})
-    if id in cart:
-        # print('existed')
-        cart[id]['quantity'] -= 1
-        if(cart[id]['quantity'] <= 0):
-            del cart[id]
-    else:
-        # print('none existed')
-        return  jsonify({'error' : 'Cannot update ticket has quantity = 0'}),400
+        except ValueError as ve:
+            flash(f"Dữ liệu không hợp lệ: {str(ve)}", "error")
+        except Exception as e:
+            flash(f"Lỗi khi tạo sự kiện: {str(e)}", "error")
+        return redirect(url_for('create_event_form'))
+    # GET request - hiển thị form
+    cities = events_dao.get_all_locations()
+    event_types = events_dao.get_all_event_types()
+    ticket_types = list(TypeTicket)
+    return render_template("create_event_new.html", cities=cities, event_types=event_types, ticket_types=ticket_types)
 
 
-
-    session[key] = cart
-
-    return jsonify(utils.cart_stats(cart))
-
-login_manager.login_view = '/login'
-@app.route('/book_ticket')
+@app.route('/report_event')
 @login_required
 def book_ticket():
 
@@ -511,20 +427,84 @@ def vnpay_return():
         return f"Giao dịch thất bại. Mã lỗi: {vnp_response_code}, Trạng thái: {txn_status}"
 
 
-@app.route("/my_event")
-def my_event():
-    return render_template("my_event.html")
-
 
 @app.route("/report_event")
 def report_event():
-    return render_template("report_event.html")
+    """Route cho trang thống kê sự kiện và doanh thu của organizer"""
+    # Kiểm tra quyền truy cập - chỉ organizer mới được vào
+    if not current_user.is_authenticated or not hasattr(current_user, 'organizer') or not current_user.organizer:
+        flash("Bạn không có quyền truy cập trang này!", "error")
+        return redirect(url_for('index'))
+
+    organizer_id = current_user.organizer.id
+
+    # Lấy tham số lọc từ URL
+    selected_year = request.args.get('year', type=int)
+    selected_month = request.args.get('month', type=int)
+    selected_quarter = request.args.get('quarter', type=int)
+
+    # Lấy danh sách các năm có sự kiện
+    years = bill_dao.get_available_years(organizer_id)
+
+    # Lấy dữ liệu thống kê tổng quan
+    report_data = bill_dao.get_report_data(organizer_id, selected_year, selected_month, selected_quarter)
+
+    # Lấy dữ liệu cho biểu đồ - truyền cả tham số quarter
+    monthly_events = bill_dao.get_monthly_events_data(organizer_id, selected_year, selected_month, selected_quarter)
+    monthly_revenue = bill_dao.get_monthly_revenue_data(organizer_id, selected_year, selected_month, selected_quarter)
+
+    # Lấy thống kê chi tiết sự kiện
+    event_statistics = bill_dao.get_event_statistics(organizer_id, selected_year, selected_month, selected_quarter)
+
+    return render_template('report_event.html',
+                         years=years,
+                         selected_year=selected_year,
+                         selected_month=selected_month,
+                         selected_quarter=selected_quarter,
+                         total_events=report_data['total_events'],
+                         total_revenue=report_data['total_revenue'],
+                         monthly_events=monthly_events,
+                         monthly_revenue=monthly_revenue,
+                         event_statistics=event_statistics)
 
 
-@app.route("/my_ticket")
+@app.route('/my_ticket')
+@login_required
 def my_ticket():
-    return render_template("my_ticket.html")
+    artists = events_dao.get_all_artists()
+    cities = events_dao.get_all_locations()
+    event_types = events_dao.get_all_event_types()
+    """Trang hiển thị danh sách vé mà người dùng đã mua"""
+    if not current_user.is_authenticated:
+        flash("Bạn cần đăng nhập để xem vé của mình!", "error")
+        return redirect(url_for('login'))
+
+    # Lấy trang hiện tại từ query parameter
+    page = request.args.get('page', 1, type=int)
+
+    # Lấy danh sách vé với phân trang
+    pagination = bill_dao.get_user_tickets_with_pagination(
+        user_id=current_user.id,
+        page=page,
+        per_page=10
+    )
+
+    tickets = pagination.items
+
+    print("tickets:", tickets)
+    print("pagination:", pagination)
+
+    return render_template(
+        'my_tickets.html',
+        tickets=tickets,
+        pagination=pagination,
+    artists = artists,
+    cities = cities,
+    event_types = event_types
+
+    )
 
 
 if __name__ == '__main__':
+    from app import admin
     app.run(debug=True)

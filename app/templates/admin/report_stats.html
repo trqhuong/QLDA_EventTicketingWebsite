@@ -1,0 +1,289 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+    {{ super() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .admin-stats-container {
+            background-color: #f8f9fa !important;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .admin-stat-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .admin-stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #198754;
+        }
+
+        .admin-chart-container {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-filter-form {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-stats-container">
+    <h2 class="mb-4">📊 Thống kê sự kiện & doanh thu (Admin)</h2>
+
+    <!-- Bộ lọc -->
+    <div class="admin-filter-form">
+        <form method="GET" class="d-flex justify-content-start align-items-center gap-3">
+            <!-- Chọn năm -->
+            <div>
+                <label class="form-label">Năm:</label>
+                <select name="year" class="form-select">
+                    <option value="">-- Tất cả năm --</option>
+                    {% for year in years %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Chọn tháng -->
+            <div>
+                <label class="form-label">Tháng:</label>
+                <select name="month" class="form-select" id="monthSelect">
+                    <option value="">-- Tất cả tháng --</option>
+                    {% for i in range(1, 13) %}
+                        <option value="{{ i }}" {% if i == selected_month %}selected{% endif %}>Tháng {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Chọn quý -->
+            <div>
+                <label class="form-label">Quý:</label>
+                <select name="quarter" class="form-select" id="quarterSelect">
+                    <option value="">-- Tất cả quý --</option>
+                    <option value="1" {% if selected_quarter == 1 %}selected{% endif %}>Quý 1</option>
+                    <option value="2" {% if selected_quarter == 2 %}selected{% endif %}>Quý 2</option>
+                    <option value="3" {% if selected_quarter == 3 %}selected{% endif %}>Quý 3</option>
+                    <option value="4" {% if selected_quarter == 4 %}selected{% endif %}>Quý 4</option>
+                </select>
+            </div>
+
+            <!-- Nút lọc -->
+            <div style="margin-left: 20px">
+                <button type="submit" class="btn btn-success">Lọc</button>
+                <a href="/admin/statsview/" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Thống kê tổng quan -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="admin-stat-card text-center">
+                <h5 class="text-muted">Tổng số sự kiện</h5>
+                <div class="admin-stat-number">{{ total_events }}</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="admin-stat-card text-center">
+                <h5 class="text-muted">Tổng doanh thu</h5>
+                <div class="admin-stat-number">{{ "{:,.0f}".format(total_revenue) }} VND</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="admin-chart-container">
+                <h6>Biểu đồ số lượng sự kiện</h6>
+                <canvas id="eventsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="admin-chart-container">
+                <h6>Biểu đồ doanh thu</h6>
+                <canvas id="revenueChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chi tiết sự kiện -->
+    {% if event_statistics %}
+    <div class="table-container">
+        <h5 class="mb-3">📋 Chi tiết sự kiện</h5>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tên sự kiện</th>
+                        <th>Ngày</th>
+                        <th>Giờ</th>
+                        <th>Vé đã bán</th>
+                        <th>Doanh thu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in event_statistics %}
+                    <tr>
+                        <td>{{ event.name }}</td>
+                        <td>{{ event.date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ event.time.strftime('%H:%M') }}</td>
+                        <td>{{ event.tickets_sold }}</td>
+                        <td>{{ "{:,.0f}".format(event.revenue) }} VND</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Xử lý tương tác giữa month và quarter select
+    const monthSelect = document.getElementById('monthSelect');
+    const quarterSelect = document.getElementById('quarterSelect');
+
+    monthSelect.addEventListener('change', function() {
+        if (this.value) {
+            quarterSelect.value = '';
+            quarterSelect.disabled = true;
+        } else {
+            quarterSelect.disabled = false;
+        }
+    });
+
+    quarterSelect.addEventListener('change', function() {
+        if (this.value) {
+            monthSelect.value = '';
+            monthSelect.disabled = true;
+        } else {
+            monthSelect.disabled = false;
+        }
+    });
+
+    // Khởi tạo trạng thái ban đầu
+    if (monthSelect.value) {
+        quarterSelect.disabled = true;
+    }
+    if (quarterSelect.value) {
+        monthSelect.disabled = true;
+    }
+
+    // Dữ liệu từ backend
+    const eventsData = {{ monthly_events | safe }};
+    const revenueData = {{ monthly_revenue | safe }};
+
+    // Xử lý labels
+    let chartLabels, chartEventsData, chartRevenueData;
+
+    {% if selected_quarter %}
+        const quarterMonths = {
+            1: ["Tháng 1", "Tháng 2", "Tháng 3"],
+            2: ["Tháng 4", "Tháng 5", "Tháng 6"],
+            3: ["Tháng 7", "Tháng 8", "Tháng 9"],
+            4: ["Tháng 10", "Tháng 11", "Tháng 12"]
+        };
+        chartLabels = quarterMonths[{{ selected_quarter }}];
+        chartEventsData = eventsData;
+        chartRevenueData = revenueData;
+    {% elif selected_month %}
+        chartLabels = ["Tháng {{ selected_month }}"];
+        chartEventsData = eventsData;
+        chartRevenueData = revenueData;
+    {% else %}
+        chartLabels = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
+        chartEventsData = eventsData;
+        chartRevenueData = revenueData;
+    {% endif %}
+
+    // Biểu đồ sự kiện
+    new Chart(document.getElementById("eventsChart"), {
+        type: "bar",
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: "Số sự kiện",
+                data: chartEventsData,
+                backgroundColor: "rgba(25,135,84,0.8)",
+                borderColor: "rgba(25,135,84,1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+
+    // Biểu đồ doanh thu
+    new Chart(document.getElementById("revenueChart"), {
+        type: {% if selected_month %}"bar"{% else %}"line"{% endif %},
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: "Doanh thu (VND)",
+                data: chartRevenueData,
+                backgroundColor: {% if selected_month or selected_quarter %}"rgba(25,135,84,0.8)"{% else %}"rgba(25,135,84,0.2)"{% endif %},
+                borderColor: "rgba(25,135,84,1)",
+                borderWidth: 2,
+                {% if not selected_month and not selected_quarter %}fill: true{% endif %}
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
