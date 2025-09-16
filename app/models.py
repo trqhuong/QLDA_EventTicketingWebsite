@@ -107,7 +107,8 @@ class Bill_Detail(Base):
     bill_id=Column(Integer, ForeignKey("bill.id"))
     ticket_id=Column(Integer, ForeignKey("ticket.id"))
     bought_quantity = Column(Integer, nullable=False)
-
+    code = Column(String(20))
+    used = Column(Boolean, default=False)
     bill = relationship("Bill", back_populates="tickets")
     ticket = relationship("Ticket", back_populates="bills")
 

@@ -4,6 +4,7 @@ from app.models import Event, Artist, City, District, EventArtist, EventType, Ti
 from app import db
 from datetime import datetime, time, date
 from app.models import TypeTicket
+from sqlalchemy import extract, and_
 
 def get_all_artists():
     return Artist.query.all()
@@ -35,39 +36,6 @@ def get_districts_by_city(city_id):
 
 def get_all_event_types():
     return EventType.query.all()
-
-def create_event(name, city_id, district_id, address, event_type_id, description, date, time, organizer_id):
-    """Tạo sự kiện mới"""
-    try:
-        # Chuyển đổi string date và time thành đối tượng date và time
-        if isinstance(date, str):
-            event_date = datetime.strptime(date, '%Y-%m-%d').date()
-        else:
-            event_date = date
-            
-        if isinstance(time, str):
-            event_time = datetime.strptime(time, '%H:%M').time()
-        else:
-            event_time = time
-        
-        new_event = Event(
-            name=name,
-            city_id=city_id,
-            district_id=district_id,
-            address=address,
-            event_type_id=event_type_id,
-            description=description,
-            date=event_date,
-            time=event_time,
-            organizer_id=organizer_id
-        )
-        
-        db.session.add(new_event)
-        db.session.commit()
-        return new_event
-    except Exception as e:
-        db.session.rollback()
-        raise e
 
 def create_event_with_tickets(name, city_id, district_id, address, event_type_id, description,
                              image_url, date, time, organizer_id, ticket_data):
@@ -176,3 +144,34 @@ def get_events_by_organizer(organizer_id, page=1, per_page=6, status_filter=None
     query = query.order_by(Event.date.desc())
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
+
+def count_events_by_organizer(organizer_id, year=None, month=None):
+    """Đếm tổng số sự kiện của organizer theo năm/tháng"""
+    from sqlalchemy import extract
+
+    query = Event.query.filter_by(organizer_id=organizer_id)
+
+    if year:
+        query = query.filter(extract('year', Event.date) == year)
+
+    if month:
+        query = query.filter(extract('month', Event.date) == month)
+
+    return query.count()
+
+def get_monthly_events_count_by_organizer(organizer_id, year):
+    """Lấy số lượng sự kiện theo từng tháng trong năm của organizer"""
+
+    monthly_events = []
+
+    for m in range(1, 13):
+        event_count = Event.query.filter(
+            and_(
+                Event.organizer_id == organizer_id,
+                extract('year', Event.date) == year,
+                extract('month', Event.date) == m
+            )
+        ).count()
+        monthly_events.append(event_count)
+
+    return monthly_events
