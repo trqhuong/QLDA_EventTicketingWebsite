@@ -201,9 +201,38 @@ def register():
 
     return render_template('create_account.html', err_message=err_message)
 
-@app.route('/event/<int:event_id>')
+@app.route('/detail_event')
 def detail_event():
-    return render_template('index.html')
+    cart = session.get(app.config['CART_KEY'], {})
+    artists = events_dao.get_all_artists()
+    cities = events_dao.get_all_locations()
+    event_types = events_dao.get_all_event_types()
+    if cart:
+        session.pop(app.config['CART_KEY'], None)
+        cart = {}
+        # for cart_id,ticket_details in cart.items():
+        #     print(f"ticket_id: {cart_id}, quantity: {ticket_details['quantity']} \n")
+    else :
+        print("cart is empty")
+    cart_info = utils.cart_stats(cart)
+
+    event_id = request.args.get('event_id')
+
+    event_details = events_dao.get_details_by_event_id(event_id)
+    tickets = ticket_dao.get_tickets_by_event_id(event_id)
+    tickets_dict = [
+        {
+            "id": t.id,
+            "type": t.type.value,
+            "price": t.price,
+            "quantity": t.quantity
+        }
+        for t in tickets
+    ]
+    return render_template('detail_event.html', event=event_details, event_id=event_id, tickets=tickets,
+                           tickets_dict = tickets_dict,cart_info = cart_info,artists=artists,
+        cities=cities,
+        event_types=event_types )
 
 @app.route("/login/google")
 def login_google():
@@ -230,6 +259,59 @@ def callback():
         user = user_dao.create_user_from_google(user_info)
     login_user(user)
     return redirect("/")
+
+
+@app.route("/api/cart", methods=['post'])
+
+def add_to_cart():
+    key = app.config['CART_KEY']
+
+    data = request.json
+    if not data or 'ticket_id' not in data  or 'type' not in data or 'price' not in data:
+        return jsonify({'error': 'Missing data in request'}), 400
+    id = str(data['ticket_id'])
+    type = str(data['type'])
+    price = float(data['price'])
+    cart = session[key] if key in session else {}
+    if id in cart:
+        cart[id]['quantity'] += 1
+    else:
+        cart[id] = {
+            "ticket_id": id,
+            "type": type,
+            "price": price,
+            "quantity": 1
+        }
+
+    session[key] = cart
+    return jsonify(utils.cart_stats(cart))
+
+@app.route("/api/cart", methods=['put'])
+def remove_from_cart():
+    key = app.config['CART_KEY']
+    # Nhận dữ liệu JSON từ FE, parse thành Python Object // Deserialize JSON -> Object(PythonObject)
+
+    #Xử lí logic xong, parse lại thành JSON gửi về clien (Serialize) thông quan jsonify
+    data = request.json
+    # print(data)
+    if not data or 'ticket_id' not in data:
+        return jsonify({'error': 'Missing data in request'}), 400
+    id = str(data['ticket_id'])
+    cart = session.get(key, {})
+    if id in cart:
+        # print('existed')
+        cart[id]['quantity'] -= 1
+        if(cart[id]['quantity'] <= 0):
+            del cart[id]
+    else:
+        # print('none existed')
+        return  jsonify({'error' : 'Cannot update ticket has quantity = 0'}),400
+
+
+
+    session[key] = cart
+
+    return jsonify(utils.cart_stats(cart))
 
 
 @login_manager.user_loader
@@ -354,7 +436,8 @@ def create_event_form():
     return render_template("create_event_new.html", cities=cities, event_types=event_types, ticket_types=ticket_types)
 
 
-@app.route('/report_event')
+login_manager.login_view = '/login'
+@app.route('/book_ticket')
 @login_required
 def book_ticket():
 
@@ -455,6 +538,12 @@ def report_event():
 
     # Lấy thống kê chi tiết sự kiện
     event_statistics = bill_dao.get_event_statistics(organizer_id, selected_year, selected_month, selected_quarter)
+
+    print("report_data:", report_data)
+    print("monthly_events:", monthly_events)
+    print("monthly_revenue:", monthly_revenue)
+    print("event_statistics:", event_statistics)
+
 
     return render_template('report_event.html',
                          years=years,
