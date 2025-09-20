@@ -26,8 +26,8 @@ def create_bill_bill_detail(user=  None,cart = None):
          ticket.quantity -= int(item['quantity'])
          while True:
              rand_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-             code = f"EVT{item['ticket_id']}-{rand_str(6)}"
-             if not db.session.query(Ticket).filter_by(ticket_code=code).first():
+             code = f"EVT{item['ticket_id']}-{rand_str}"
+             if not db.session.query(Bill_Detail).filter_by(code=code).first():
                  break
          bill_detail = Bill_Detail(
              bill_id = bill.id,
