@@ -1,7 +1,7 @@
-{% extends layout %}
+{% extends 'organizer_layout/base.html' %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
 
+{% block content %}
 <div class="container my-4">
     <h3 class="text-success fw-bold mb-4">📊 Thống kê sự kiện & doanh thu</h3>
     <!-- Bộ lọc năm, tháng & quý -->

@@ -352,37 +352,58 @@ if __name__ == '__main__':
         db.session.commit()
 
         # --- Ticket ---
-        ticket1 = Ticket(
+        tickets = []
+
+        # Event 1
+        tickets.append(Ticket(
             status=TicketStatus.Available,
             type=TypeTicket.Standard,
             price=500000,
             quantity=100,
             event_id=event1.id
-        )
-
-        ticket2 = Ticket(
+        ))
+        tickets.append(Ticket(
             status=TicketStatus.Available,
             type=TypeTicket.VIP,
             price=1500000,
             quantity=50,
             event_id=event1.id
-        )
-        ticket3 = Ticket(
+        ))
+
+        # Event 2
+        tickets.append(Ticket(
             status=TicketStatus.Available,
             type=TypeTicket.Standard,
             price=400000,
             quantity=100,
             event_id=event2.id
-        )
-
-        ticket4 = Ticket(
+        ))
+        tickets.append(Ticket(
             status=TicketStatus.Sold_out,
             type=TypeTicket.VIP,
             price=1200000,
             quantity=5,
             event_id=event2.id
-        )
-        db.session.add_all([ticket1, ticket2, ticket3, ticket4])
+        ))
+
+        # Event 3–9 (ví dụ mỗi event cũng có 2 loại vé Standard + VIP)
+        for ev in [event3, event4, event5, event6, event7, event8, event9]:
+            tickets.append(Ticket(
+                status=TicketStatus.Available,
+                type=TypeTicket.Standard,
+                price=450000,  # giá mẫu
+                quantity=100,
+                event_id=ev.id
+            ))
+            tickets.append(Ticket(
+                status=TicketStatus.Available,
+                type=TypeTicket.VIP,
+                price=1300000,  # giá mẫu
+                quantity=50,
+                event_id=ev.id
+            ))
+
+        db.session.add_all(tickets)
         db.session.commit()
 
 
