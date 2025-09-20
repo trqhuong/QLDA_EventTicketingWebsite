@@ -6,6 +6,8 @@ def get_ticket_by_code(ticket_code):
     """
     Tìm kiếm thông tin vé theo mã code
     """
+    if not ticket_code:
+        return None
     try:
         bill_detail = db.session.query(Bill_Detail)\
             .join(Bill)\
