@@ -1,5 +1,11 @@
 # QLDA_EventTicketingWebsite
 📖 Hướng dẫn cài đặt & chạy project
+🔧 Yêu cầu môi trường
+Để chạy được project, cần chuẩn bị:
+- Python 3.11+ 
+- PyCharm IDE (hoặc IDE khác có hỗ trợ Python, nhưng khuyên dùng PyCharm)  
+- MySQL 8.0+ 
+
 1. Clone project từ GitHub
 - Mở Command Prompt (CMD) hoặc Git Bash.
 - Chạy lệnh sau để clone project về máy:
