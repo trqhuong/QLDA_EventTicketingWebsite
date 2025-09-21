@@ -1,5 +1,5 @@
 # QLDA_EventTicketingWebsite
-Hướng dẫn cài đặt & chạy project
+📖 Hướng dẫn cài đặt & chạy project
 1. Clone project từ GitHub
 - Mở Command Prompt (CMD) hoặc Git Bash.
 - Chạy lệnh sau để clone project về máy:
@@ -28,7 +28,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/ticke
 👉 Thay <password> bằng mật khẩu MySQL của bạn.
 
 5. Khởi tạo dữ liệu ban đầu
-Chạy file models.py
-
+- Chạy file models.py
 6. Chạy project
-Chạy file index.py
+- Chạy file index.py
