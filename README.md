@@ -26,7 +26,9 @@ Tìm dòng cấu hình MySQL URI :
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/ticketsaledb?charset=utf8mb4" % quote('password')
 ```
 👉 Thay <password> bằng mật khẩu MySQL của bạn.
+
 5. Khởi tạo dữ liệu ban đầu
 Chạy file models.py
+
 6. Chạy project
 Chạy file index.py
