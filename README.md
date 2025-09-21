@@ -3,7 +3,7 @@
 
 🔧 Yêu cầu môi trường
 Để chạy được project, cần chuẩn bị:
-- Python 3.11+ 
+- Python 3.10+ 
 - PyCharm IDE (hoặc IDE khác có hỗ trợ Python, nhưng khuyên dùng PyCharm)  
 - MySQL 8.0+ 
 
