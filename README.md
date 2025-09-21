@@ -1,5 +1,6 @@
 # QLDA_EventTicketingWebsite
 📖 Hướng dẫn cài đặt & chạy project
+
 🔧 Yêu cầu môi trường
 Để chạy được project, cần chuẩn bị:
 - Python 3.11+ 
